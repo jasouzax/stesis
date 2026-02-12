@@ -1,0 +1,64 @@
+$fg: #AFD3CD
+$bg: #0D1114
+$size: 25px
+    
+@mixin blueprint-grid($color: #15191C)
+    background-image: linear-gradient($color 1px, transparent 1px), linear-gradient(90deg, $color 1px, transparent 1px)
+    background-size: $size $size
+@keyframes moveGrid
+  from
+    background-position: 0 0
+  to
+    background-position: $size $size
+@font-face
+  font-family: 'font_fade'
+  src: url('SuperchargeStraightHalftone-YzY7q.otf') format('opentype')
+  font-weight: normal
+  font-style: normal
+@font-face
+  font-family: 'font_regu'
+  src: url('Ethnocentric-Regular.otf') format('opentype')
+  font-weight: normal
+  font-style: normal
+body
+    background-color: $bg
+canvas
+    position: fixed
+    z-index: 0
+#grid
+    position: fixed
+    left: 0
+    top: 0
+    width: 100%
+    height: 100%
+    @include blueprint-grid()
+    animation: moveGrid 2s linear infinite
+    background-color: $bg
+    z-index: 1
+    opacity: 0.85
+    backdrop-filter: blur(2px)
+#ui
+    position: fixed
+    left: 0
+    top: 0
+    width: 100%
+    height: 100%
+    z-index: 2
+    svg
+        overflow: visible
+        path, line, circle
+            fill: none
+            stroke: $fg
+            stroke-width: 2
+            position: absolute
+            &.fill
+                fill: $fg
+    .logo
+        fill: $fg
+    .title
+        fill: $fg
+        font: 40px font_fade
+    .fulltitle
+        fill: $fg
+        font: 13px font_regu
+        opacity: .75
