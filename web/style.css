@@ -1,0 +1,78 @@
+@keyframes moveGrid {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 25px 25px;
+  }
+}
+@font-face {
+  font-family: "font_fade";
+  src: url("SuperchargeStraightHalftone-YzY7q.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "font_regu";
+  src: url("Ethnocentric-Regular.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+}
+body {
+  background-color: #0D1114;
+}
+
+canvas {
+  position: fixed;
+  z-index: 0;
+}
+
+#grid {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-image: linear-gradient(#15191C 1px, transparent 1px), linear-gradient(90deg, #15191C 1px, transparent 1px);
+  background-size: 25px 25px;
+  animation: moveGrid 2s linear infinite;
+  background-color: #0D1114;
+  z-index: 1;
+  opacity: 0.85;
+  backdrop-filter: blur(2px);
+}
+
+#ui {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+}
+#ui svg {
+  overflow: visible;
+}
+#ui svg path, #ui svg line, #ui svg circle {
+  fill: none;
+  stroke: #AFD3CD;
+  stroke-width: 2;
+  position: absolute;
+}
+#ui svg path.fill, #ui svg line.fill, #ui svg circle.fill {
+  fill: #AFD3CD;
+}
+#ui .logo {
+  fill: #AFD3CD;
+}
+#ui .title {
+  fill: #AFD3CD;
+  font: 40px font_fade;
+}
+#ui .fulltitle {
+  fill: #AFD3CD;
+  font: 13px font_regu;
+  opacity: 0.75;
+}
+
+/*# sourceMappingURL=style.css.map */
