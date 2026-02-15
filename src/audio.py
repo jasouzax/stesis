@@ -1,19 +1,17 @@
 import numpy as np
-import time
-import sys
 import cv2
+import math
+import time
+from config import (
+    AUDIO_MODE, AUDIO_BASE_FREQ, AUDIO_MAX_FREQ, AUDIO_SMOOTHING_COEFF,
+    MAX_VOL_DIST_CM, MIN_VOL_DIST_CM, MAX_RADAR_DIST_CM, LEFT_OFFSET
+)
 
 try:
     import pyaudio
 except ImportError:
-    print("PyAudio not found. Run: pip install pyaudio")
-    # sys.exit(1) # Don't exit on import, only when main is run or class is used
-
-from config import (
-    AUDIO_BASE_FREQ, AUDIO_MAX_FREQ, AUDIO_SMOOTHING_COEFF,
-    SPECTRO_HEIGHT, SPECTRO_TIME_HISTORY_SEC,
-    PLAY_AUDIO, AUDIO_SAMPLE_RATE, AUDIO_CHUNK_SIZE
-)
+    pyaudio = None
+    print("PyAudio not found. Audio will be disabled.")
 
 class AudioEntity:
     def __init__(self, color_L, color_R):
@@ -26,6 +24,7 @@ class AudioEntity:
         self.phase = 0.0 
 
     def update(self, target_freq, target_amp_L, target_amp_R):
+        # Smoothing
         if AUDIO_SMOOTHING_COEFF <= 0:
             self.freq = target_freq
             self.amp_L = target_amp_L
@@ -35,129 +34,130 @@ class AudioEntity:
             self.amp_L = (self.amp_L * AUDIO_SMOOTHING_COEFF) + (target_amp_L * (1.0 - AUDIO_SMOOTHING_COEFF))
             self.amp_R = (self.amp_R * AUDIO_SMOOTHING_COEFF) + (target_amp_R * (1.0 - AUDIO_SMOOTHING_COEFF))
 
-def freq_to_y(freq, height):
-    clamped_freq = max(AUDIO_BASE_FREQ, min(AUDIO_MAX_FREQ, freq))
-    normalized = (clamped_freq - AUDIO_BASE_FREQ) / (AUDIO_MAX_FREQ - AUDIO_BASE_FREQ)
-    return int(height - 1 - (normalized * (height - 1)))
-
-def draw_entity_trace(entity, spectro_canvas, channel, width, pixels_to_shift):
-    y = freq_to_y(entity.freq, SPECTRO_HEIGHT)
-    amp = entity.amp_L if channel == 'L' else entity.amp_R
-    
-    if amp > 0.01: 
-        color = tuple(int(c * amp) for c in (entity.color_L if channel == 'L' else entity.color_R))
-        if entity.prev_y is not None:
-            cv2.line(spectro_canvas, (width - pixels_to_shift - 1, entity.prev_y), (width - 1, y), color, 2)
-        else:
-            cv2.circle(spectro_canvas, (width - 1, y), 1, color, -1)
-    
-    return y if amp > 0.01 else None
-
 class AudioManager:
-    def __init__(self):
-        self.active_entities = []
-        self.pa = pyaudio.PyAudio()
-        self.stream = self.pa.open(
-            format=pyaudio.paFloat32,
-            channels=2,
-            rate=AUDIO_SAMPLE_RATE,
-            output=True,
-            frames_per_buffer=AUDIO_CHUNK_SIZE,
-            stream_callback=self._audio_callback
-        )
-        self.stream.start_stream()
+    def __init__(self, rate=44100, chunk=1024):
+        self.RATE = rate
+        self.CHUNK = chunk
+        self.entities = []
+        self.stream = None
+        self.p = None
+        
+        if pyaudio:
+            try:
+                self.p = pyaudio.PyAudio()
+                self.stream = self.p.open(format=pyaudio.paFloat32,
+                                          channels=2,
+                                          rate=self.RATE,
+                                          output=True,
+                                          stream_callback=self._callback)
+            except Exception as e:
+                print(f"Audio Output Error: {e}")
 
     def add_entity(self, entity):
-        self.active_entities.append(entity)
+        self.entities.append(entity)
+
+    def _callback(self, in_data, frame_count, time_info, status):
+        out_data = np.zeros((frame_count, 2), dtype=np.float32)
+        t = np.arange(frame_count) / self.RATE
         
-    def _audio_callback(self, in_data, frame_count, time_info, status):
-        out_chunk = np.zeros((frame_count, 2), dtype=np.float32)
-        if PLAY_AUDIO:
-            t = np.arange(frame_count, dtype=np.float32) / AUDIO_SAMPLE_RATE
-            for e in self.active_entities:
-                if e.amp_L < 0.001 and e.amp_R < 0.001:
-                    continue
-                
-                wave = np.sin(2 * np.pi * e.freq * t + e.phase)
-                e.phase += 2 * np.pi * e.freq * frame_count / AUDIO_SAMPLE_RATE
-                e.phase %= 2 * np.pi
-                
-                out_chunk[:, 0] += wave * e.amp_L
-                out_chunk[:, 1] += wave * e.amp_R
+        for entity in self.entities:
+            # Generate sine wave
+            # Note: Phase continuity is important for smooth audio.
+            # Simple approach: standard sine with phase accumulation
+            # For this simple demo, we just use freq*t but that pops on freq change.
+            # Better: phase += freq * dt
             
-        out_chunk = np.clip(out_chunk, -1.0, 1.0)
-        return (out_chunk.tobytes(), pyaudio.paContinue)
+            # Vectorized phase accumulation is tricky in callback without state per sample.
+            # But since frame_count is small, we can just do:
+            phase_increment = 2 * np.pi * entity.freq / self.RATE
+            phases = entity.phase + np.arange(frame_count) * phase_increment
+            entity.phase = (phases[-1] + phase_increment) % (2 * np.pi)
+            
+            wave = np.sin(phases)
+            
+            # Add to output
+            out_data[:, 0] += wave * entity.amp_L
+            out_data[:, 1] += wave * entity.amp_R
+            
+        # Clip
+        out_data = np.clip(out_data, -1.0, 1.0)
+        return (out_data.tobytes(), pyaudio.paContinue)
 
     def close(self):
-        self.stream.stop_stream()
-        self.stream.close()
-        self.pa.terminate()
+        if self.stream:
+            self.stream.stop_stream()
+            self.stream.close()
+        if self.p:
+            self.p.terminate()
+
+    def process_radar_data(self, main_audio, motion_audio, sw_x, sw_dist, sw_y, mot_dist, mot_x, mot_y, valid_sweep, width, height):
+        # Audio Logic - Motion
+        if mot_x != -1:
+            if AUDIO_MODE == 'DISTANCE_VERTICAL':
+                t_freq = np.interp(mot_y, [height - 1, 0], [AUDIO_BASE_FREQ, AUDIO_MAX_FREQ])
+                dist_vol = np.interp(mot_dist, [MAX_VOL_DIST_CM, MIN_VOL_DIST_CM], [1.0, 0.0])
+            else:
+                t_freq = np.interp(mot_dist, [0, MAX_RADAR_DIST_CM], [AUDIO_MAX_FREQ, AUDIO_BASE_FREQ])
+                dist_vol = 1.0
+
+            pan = np.interp(mot_x, [LEFT_OFFSET, width - 1], [0.0, 1.0])
+            motion_audio.update(t_freq, target_amp_L=dist_vol * (1.0 - pan), target_amp_R=dist_vol * pan)
+        else:
+            motion_audio.update(AUDIO_BASE_FREQ, 0.0, 0.0)
+
+        # Audio Logic - Sweep
+        if valid_sweep:
+            if AUDIO_MODE == 'DISTANCE_VERTICAL':
+                t_freq = np.interp(sw_y, [height - 1, 0], [AUDIO_BASE_FREQ, AUDIO_MAX_FREQ])
+                dist_vol = np.interp(sw_dist, [MAX_VOL_DIST_CM, MIN_VOL_DIST_CM], [1.0, 0.0])
+            else:
+                t_freq = np.interp(sw_dist, [0, MAX_RADAR_DIST_CM], [AUDIO_MAX_FREQ, AUDIO_BASE_FREQ])
+                dist_vol = 1.0
+                
+            pan = np.interp(sw_x, [LEFT_OFFSET, width - 1], [0.0, 1.0])
+            main_audio.update(t_freq, target_amp_L=dist_vol * (1.0 - pan), target_amp_R=dist_vol * pan)
+        else:
+            main_audio.update(AUDIO_BASE_FREQ, 0.0, 0.0)
+
+def draw_entity_trace(entity, img, channel, width, pixels_to_shift):
+    # Determine current Y based on amp
+    # For visualization, let's map freq to Y? Or Amp to Y?
+    # Original code mapped freq to Y implicitly via spectrogram logic which isn't fully captured here.
+    # The original main.py just drew lines on a 'spectro' buffer.
+    # Let's reproduce the simple visualization:
+    # Map Frequency to Y position (Low freq = Bottom, High freq = Top)
+    
+    # In main.py it was: 
+    # cv2.line(spectro, ...)
+    # But wait, main.py didn't actually compute FFT. It just drew a line based on current Freq.
+    
+    y = int(np.interp(entity.freq, [AUDIO_BASE_FREQ, AUDIO_MAX_FREQ], [img.shape[0]-1, 0]))
+    
+    amp = entity.amp_L if channel == 'L' else entity.amp_R
+    color = entity.color_L if channel == 'L' else entity.color_R
+    
+    # Dim color by amplitude
+    draw_color = (int(color[0]*amp), int(color[1]*amp), int(color[2]*amp))
+    
+    if entity.prev_y is not None:
+        cv2.line(img, (width - pixels_to_shift, entity.prev_y), (width, y), draw_color, 2)
+    
+    return y
 
 if __name__ == "__main__":
-    print("--- Audio Debug Mode ---")
-    print("Playing constant frequency panning Left <-> Right...")
-    
-    if 'pyaudio' not in sys.modules:
-        print("Pyaudio missing, exiting.")
-        sys.exit(1)
-        
-    manager = AudioManager()
-    
-    # Test Entity
-    test_entity = AudioEntity(color_L=(255, 0, 0), color_R=(0, 0, 255))
-    manager.add_entity(test_entity)
-    
-    # Visualization setup
-    width = 800
-    spectro_L = np.zeros((SPECTRO_HEIGHT, width, 3), dtype=np.uint8)
-    spectro_R = np.zeros((SPECTRO_HEIGHT, width, 3), dtype=np.uint8)
-    
-    last_time = time.time()
+    print("Audio Test... Playing sweep")
+    mgr = AudioManager()
+    entity = AudioEntity((255,255,255), (255,255,255))
+    mgr.add_entity(entity)
     
     try:
+        import time
+        t0 = time.time()
         while True:
-            curr_time = time.time()
-            dt = curr_time - last_time
-            last_time = curr_time
-            
-            # Logic: Constant freq, Pan L->R->L
-            freq = 600.0
-            pan_cycle = (curr_time % 4.0) / 2.0 # 0 to 2
-            if pan_cycle > 1.0:
-                 pan = 2.0 - pan_cycle # 1 -> 0
-            else:
-                 pan = pan_cycle       # 0 -> 1
-            
-            vol = 0.8
-            test_entity.update(freq, target_amp_L=vol*(1.0-pan), target_amp_R=vol*pan)
-            
-            # --- SPECTROGRAM RENDERING ---
-            pixels_to_shift = max(1, int((dt / SPECTRO_TIME_HISTORY_SEC) * width))
-            spectro_L = np.roll(spectro_L, -pixels_to_shift, axis=1)
-            spectro_R = np.roll(spectro_R, -pixels_to_shift, axis=1)
-            spectro_L[:, -pixels_to_shift:] = 0
-            spectro_R[:, -pixels_to_shift:] = 0
-
-            for grid_y in range(0, SPECTRO_HEIGHT, 50):
-                cv2.line(spectro_L, (width - pixels_to_shift, grid_y), (width, grid_y), (30, 30, 30), 1)
-                cv2.line(spectro_R, (width - pixels_to_shift, grid_y), (width, grid_y), (30, 30, 30), 1)
-            
-            prev_yl = draw_entity_trace(test_entity, spectro_L, 'L', width, pixels_to_shift)
-            prev_yr = draw_entity_trace(test_entity, spectro_R, 'R', width, pixels_to_shift)
-            # Update entity prev_y based on which channel was drawn? 
-            # In main.py it was combined. Here we track simple.
-            test_entity.prev_y = prev_yl if prev_yl is not None else prev_yr
-            
-            cv2.putText(spectro_L, f"Left Channel (Vol: {test_entity.amp_L:.2f})", (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (150, 150, 150), 1)
-            cv2.putText(spectro_R, f"Right Channel (Vol: {test_entity.amp_R:.2f})", (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (150, 150, 150), 1)
-            
-            combined = np.hstack((spectro_L, spectro_R))
-            cv2.imshow("Audio Debug", combined)
-            
-            if cv2.waitKey(1) == ord('q'): break
-            
+            t = time.time() - t0
+            freq = 400 + 200 * math.sin(t * 2)
+            pan = 0.5 + 0.5 * math.sin(t)
+            entity.update(freq, 0.5 * (1-pan), 0.5 * pan)
+            time.sleep(0.01)
     except KeyboardInterrupt:
-        pass
-    finally:
-        manager.close()
-        cv2.destroyAllWindows()
+        mgr.close()

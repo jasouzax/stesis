@@ -46,4 +46,4 @@ AUDIO_CHUNK_SIZE = 1024          # Buffer size for audio chunks
 
 AUDIO_MODE = 'DISTANCE_VERTICAL' # Options: 'DISTANCE_VERTICAL' or 'DISTANCE'
 MAX_VOL_DIST_CM = 50.0           # Inner boundary: 100% Volume (Cyan circle)
-
+MIN_VOL_DIST_CM = 250.0          # Outer boundary: 0% Volume (Gray circle)

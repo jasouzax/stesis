@@ -99,15 +99,12 @@ if __name__ == "__main__":
     
     stereo, right_matcher, wls_filter = create_stereo_matcher()
     
-    cap_l = cv2.VideoCapture(CAM_ID_LEFT)
-    cap_r = cv2.VideoCapture(CAM_ID_RIGHT)
+    import camera
+    cap_l, cap_r = camera.init_cameras()
     
     while True:
-        ret_l, frame_l = cap_l.read()
-        ret_r, frame_r = cap_r.read()
+        ret_l, frame_l, ret_r, frame_r = camera.get_frames(cap_l, cap_r)
         if not ret_l or not ret_r: break
-        
-        frame_r = cv2.rotate(frame_r, cv2.ROTATE_180)
         img_l = cv2.resize(frame_l, (width, height), interpolation=cv2.INTER_AREA)
         img_r = cv2.resize(frame_r, (width, height), interpolation=cv2.INTER_AREA)
 

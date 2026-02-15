@@ -84,10 +84,11 @@ def main():
     print("  [SPACE]      Manual Capture")
     print("  [Q]          Quit")
 
-    cap_l = cv2.VideoCapture(CAM_ID_LEFT)
-    cap_r = cv2.VideoCapture(CAM_ID_RIGHT)
+    import camera
 
-    if not cap_l.isOpened() or not cap_r.isOpened():
+    cap_l, cap_r = camera.init_cameras()
+
+    if not cap_l or not cap_r:
         print("Error opening cameras.")
         sys.exit()
 
@@ -112,13 +113,15 @@ def main():
     last_capture_time = 0
 
     # Read first frame for dimensions
-    _, frame_l = cap_l.read()
+    ret_l, frame_l, ret_r, frame_r = camera.get_frames(cap_l, cap_r)
+    if not ret_l:
+        print("Could not read frame")
+        sys.exit()
+        
     h, w = frame_l.shape[:2]
 
     while True:
-        ret_l, frame_l = cap_l.read()
-        ret_r, frame_r = cap_r.read()
-        frame_r = cv2.rotate(frame_r, cv2.ROTATE_180)
+        ret_l, frame_l, ret_r, frame_r = camera.get_frames(cap_l, cap_r)
         if not ret_l or not ret_r: break
 
         vis_l = frame_l.copy()
