@@ -6,7 +6,8 @@ from config import (
     LEFT_OFFSET, MAX_RADAR_DIST_CM, FOV_H, RING_UNIT, RADAR_FADE,
     MAX_VOL_DIST_CM, MIN_VOL_DIST_CM, SCALE,
     SWEEP_SPEED_SEC, BOUNCE_SWEEP, SPEED_THRESHOLD_CM,
-    ENABLE_MOTION_DETECTION, BASELINE, MIN_DISPARITY, NUM_DISPARITIES
+    ENABLE_MOTION_DETECTION, BASELINE, MIN_DISPARITY, NUM_DISPARITIES,
+    RADAR_RING_COLOR, RADAR_GRID_COLOR, RADAR_TEXT_SCALE
 )
 
 def polar_to_cartesian_yaw_corrected(cx, cy, dist_cm, angle_deg, current_yaw, max_dist, canvas_radius):
@@ -14,8 +15,6 @@ def polar_to_cartesian_yaw_corrected(cx, cy, dist_cm, angle_deg, current_yaw, ma
     # Global Angle = Yaw + Local Angle
     # If we want North-Up, we plot Global Angle.
     # If we want Head-Up, we plot Local Angle (relative to forward).
-    # User asked: "Radar no longer shows the yaw, make it import from imu so that the radar shows the actual position of points with account of the device rotating?"
-    # This implies North-Up (World Fixed) visualization where points stay still as device rotates.
     
     # North-Up:
     # angle_deg passed here is usually local angle relative to camera center.
@@ -63,8 +62,6 @@ class Radar:
         motion_y = -1
         
         # --- DISTANCE & MOTION DETECTION ---
-        # Note: We iterate columns to find max disparity (closest object) per column
-        
         for sx in range(LEFT_OFFSET, self.width):
             col_disp = disparity_clean[:, sx]
             max_y = np.argmax(col_disp)
@@ -78,10 +75,8 @@ class Radar:
                 if ENABLE_MOTION_DETECTION and self.prev_distances[sx] > 0:
                     speed = abs(dist_cm - self.prev_distances[sx])
                     if speed > SPEED_THRESHOLD_CM:
-                        # Local Angle: -FOV/2 to +FOV/2
                         col_angle_local = ((sx / self.width) * FOV_H) - (FOV_H / 2)
                         
-                        # Plot with Yaw Correction
                         rx_m, ry_m = polar_to_cartesian_yaw_corrected(
                             radar_cx, radar_cy, dist_cm, col_angle_local, current_yaw, 
                             MAX_RADAR_DIST_CM, canvas_radius
@@ -130,7 +125,6 @@ class Radar:
                     closest_sweep_dist = dist_cm
                     closest_sweep_y = y_val
                 
-                # Radar color coding for vertical placement: High (Y=0) -> Yellow, Low (Y=height) -> Red
                 g = int(255 * (1.0 - (y_val / (self.height - 1))))
                 color = (0, g, 255) # BGR
                 
@@ -150,48 +144,50 @@ class Radar:
         # Radar Rings (Static relative to center)
         for d in range(RING_UNIT, MAX_RADAR_DIST_CM + 1, RING_UNIT):
             r = int((d / MAX_RADAR_DIST_CM) * canvas_radius)
-            cv2.circle(radar_display, (radar_cx, radar_cy), r, (40, 40, 40), 1)
-            if d == MAX_RADAR_DIST_CM:
-                cv2.putText(radar_display, f"{d}cm", (radar_cx + 5, radar_cy - r - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (150, 150, 150), 1)
+            # Use RADAR_GRID_COLOR (Light Gray) for distance rings
+            cv2.circle(radar_display, (radar_cx, radar_cy), r, RADAR_GRID_COLOR, 1)
+            
+            # Label placement: "next to the rings" (Right side), Scaled text
+            if d <= MAX_RADAR_DIST_CM:
+                cv2.putText(radar_display, f"{d}cm", (radar_cx + r + 4, radar_cy + 4), 
+                            cv2.FONT_HERSHEY_SIMPLEX, RADAR_TEXT_SCALE, (200, 200, 200), 1)
         
-        # Volume Boundaries
+        # Volume Boundaries (Cyan)
         r_max_vol = int((MAX_VOL_DIST_CM / MAX_RADAR_DIST_CM) * canvas_radius)
         r_min_vol = int((MIN_VOL_DIST_CM / MAX_RADAR_DIST_CM) * canvas_radius)
-        cv2.circle(radar_display, (radar_cx, radar_cy), r_max_vol, (255, 255, 0), 1)
-        cv2.circle(radar_display, (radar_cx, radar_cy), r_min_vol, (100, 100, 100), 1)
+        cv2.circle(radar_display, (radar_cx, radar_cy), r_max_vol, RADAR_RING_COLOR, 1)
+        cv2.circle(radar_display, (radar_cx, radar_cy), r_min_vol, (100, 100, 100), 1) # Keep outer boundary gray/dim
         
         # FOV Lines - Now Rotated by Yaw!
         radar_overlay = radar_display.copy()
-        fov_min_angle = (FOV_H / 2) # Local
-        fov_max_angle = -(FOV_H / 2) # Local
-        # We want to draw lines representing the camera's current Field of View.
-        # Camera is facing Yaw.
-        # Left Edge: Yaw - FOV/2
-        # Right Edge: Yaw + FOV/2
         
-        fov_min_world = current_yaw - (FOV_H / 2)
-        fov_max_world = current_yaw + (FOV_H / 2)
+        # FOV Logic:
+        # The visible area starts after LEFT_OFFSET pixels.
+        # We need to calculate the angle that corresponds to the LEFT_OFFSET pixel column.
+        angle_per_pixel = FOV_H / self.width
+        fov_left_local = -(FOV_H / 2) + (LEFT_OFFSET * angle_per_pixel)
+        fov_right_local = (FOV_H / 2)
         
-        # Use simple polar to cartesian since we calculated world angles
-        # Note: polar_to_cartesian_yaw_corrected adds yaw to input angle.
-        # So passing 0 as yaw and pre-calculated world angle works too.
-        # Let's reuse the corrected function with 0 yaw relative, or just manual logic.
-        # Easier: Pass local angle to corrected function.
+        # Calculate world angles for FOV lines
+        x_min, y_min = polar_to_cartesian_yaw_corrected(
+            radar_cx, radar_cy, MAX_RADAR_DIST_CM, fov_left_local, current_yaw, MAX_RADAR_DIST_CM, canvas_radius
+        )
+        x_max, y_max = polar_to_cartesian_yaw_corrected(
+            radar_cx, radar_cy, MAX_RADAR_DIST_CM, fov_right_local, current_yaw, MAX_RADAR_DIST_CM, canvas_radius
+        )
         
-        x_min, y_min = polar_to_cartesian_yaw_corrected(radar_cx, radar_cy, MAX_RADAR_DIST_CM, -FOV_H/2, current_yaw, MAX_RADAR_DIST_CM, canvas_radius)
-        x_max, y_max = polar_to_cartesian_yaw_corrected(radar_cx, radar_cy, MAX_RADAR_DIST_CM, FOV_H/2, current_yaw, MAX_RADAR_DIST_CM, canvas_radius)
-        
-        cv2.line(radar_overlay, (radar_cx, radar_cy), (x_min, y_min), (255, 255, 255), 2)
-        cv2.line(radar_overlay, (radar_cx, radar_cy), (x_max, y_max), (255, 255, 255), 2)
+        # Draw FOV lines with RADAR_GRID_COLOR (Light Gray)
+        cv2.line(radar_overlay, (radar_cx, radar_cy), (x_min, y_min), RADAR_GRID_COLOR, 2)
+        cv2.line(radar_overlay, (radar_cx, radar_cy), (x_max, y_max), RADAR_GRID_COLOR, 2)
         
         # Device Orientation Indicator (Arrow)
-        # Pointing towards Yaw
         arrow_len = 20
-        # Yaw is 0 (North/Up). Wait, usually Yaw=0 is forward.
-        # If North-Up, and Yaw=0, arrow points Up.
-        # If Yaw=90 (turned right), arrow points Right.
-        arrow_x = int(radar_cx + arrow_len * math.sin(math.radians(current_yaw)))
-        arrow_y = int(radar_cy - arrow_len * math.cos(math.radians(current_yaw)))
+        # If North-Up, and Yaw=0 (North), arrow points Up (-Y). 
+        # Standard math 0 is Right (+X). 
+        # So we want -90 deg rotation.
+        arrow_angle_rad = math.radians(current_yaw - 90)
+        arrow_x = int(radar_cx + arrow_len * math.cos(arrow_angle_rad))
+        arrow_y = int(radar_cy + arrow_len * math.sin(arrow_angle_rad))
         cv2.arrowedLine(radar_display, (radar_cx, radar_cy), (arrow_x, arrow_y), (0, 0, 255), 2)
         
         cv2.addWeighted(radar_overlay, 0.2, radar_display, 0.8, 0, radar_display)
@@ -252,7 +248,7 @@ if __name__ == "__main__":
             depth_view = depth.get_visual_depth(disparity)
             
             # IMU Update
-            yaw, pitch, pos_x, pos_y = mpu.update()
+            yaw, pitch, pos_x, pos_y, ax = mpu.update()
             
             # Radar Update (Using Real Yaw)
             radar_view, sw_x, sw_dist, sw_y, mot_dist, mot_x, mot_y, valid = radar.process(disparity, yaw, pitch, curr_time)
