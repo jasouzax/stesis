@@ -65,7 +65,7 @@ canvas {
 #ui .logo {
   fill: #AFD3CD;
 }
-#ui .title {
+#ui .name {
   fill: #AFD3CD;
   font: 40px font_fade;
 }
@@ -73,6 +73,25 @@ canvas {
   fill: #AFD3CD;
   font: 13px font_regu;
   opacity: 0.75;
+}
+#ui .head path, #ui .head rect {
+  stroke-width: 0;
+  fill: url(#def_head);
+}
+#ui .sidebar .number {
+  fill: #0D1114;
+  font: 13px font_regu;
+}
+#ui .sidebar .title {
+  fill: #AFD3CD;
+  font: 13px font_fade;
+}
+#ui .sidebar .icon path {
+  fill: #0D1114;
+}
+#ui .content .title {
+  fill: #AFD3CD;
+  font: 30px font_fade;
 }
 
 /*# sourceMappingURL=style.css.map */

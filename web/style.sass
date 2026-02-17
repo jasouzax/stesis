@@ -55,10 +55,28 @@ canvas
                 fill: $fg
     .logo
         fill: $fg
-    .title
+    .name
         fill: $fg
         font: 40px font_fade
     .fulltitle
         fill: $fg
         font: 13px font_regu
         opacity: .75
+    .head
+        path, rect
+            stroke-width: 0
+            fill: url(#def_head)
+    .sidebar
+        .number
+            fill: $bg
+            font: 13px font_regu
+        .title
+            fill: $fg
+            font: 13px font_fade
+        .icon
+            path
+                fill: $bg
+    .content
+        .title
+            fill: $fg
+            font: 30px font_fade

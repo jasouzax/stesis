@@ -183,7 +183,7 @@ class NavSystem:
         depth_view = depth.get_visual_depth(disparity)
         
         if sw_x >= LEFT_OFFSET:
-            cv2.line(depth_view, (sw_x, 0), (sw_x, height), (255, 255, 255), 2)
+            cv2.line(depth_view, (sw_x, 0), (sw_x, self.height), (255, 255, 255), 2)
         
         cv2.putText(radar_view, f"POS X: {pos_x:.1f} Y: {pos_y:.1f}", (10, self.height - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
 
