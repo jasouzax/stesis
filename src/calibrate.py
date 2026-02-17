@@ -306,48 +306,5 @@ def main():
     fname = f"stereo-{BASELINE}.json"
     with open(fname, 'w') as f: json.dump(data, f, cls=NumpyEncoder, indent=4)
 
-    # --- HISTORICAL TRACKING ---
-    history = []
-    if os.path.exists("stereo.json"):
-        try:
-            with open("stereo.json", 'r') as f:
-                existing = json.load(f)
-                history = existing.get("history", [])
-        except:
-             pass
-
-    summary_entry = {
-        "timestamp": time.time(),
-        "baseline": BASELINE,
-        "file": fname,
-        "pixel_error": ret_s,
-        "pixel_error_left": ret_l,
-        "pixel_error_right": ret_r,
-        "calculated_baseline": calc_baseline,
-        "fov_left": fov_x_l,
-        "fov_right": fov_x_r
-    }
-    history.append(summary_entry)
-
-    # Save Graph
-    if HAS_MATPLOTLIB and len(history) > 1:
-        plot_calibration_history(history)
-    elif not HAS_MATPLOTLIB:
-        print("\n[WARNING] matplotlib not found. Skipping graph generation.")
-        print("Install it via: pip install matplotlib")
-
-    # Save stereo.json with HEAD pointing to current, plus history
-    with open("stereo.json", 'w') as f:
-        json.dump({
-            "baseline": BASELINE,
-            "file": fname,
-            "pixel_error": ret_s,
-            "calculated_baseline": calc_baseline,
-            "history": history
-        }, f, cls=NumpyEncoder, indent=4)
-
-    print(f"\nCalibration saved to {fname}")
-    print(f"Summary updated in stereo.json (Total records: {len(history)})")
-
 if __name__ == "__main__":
     main()

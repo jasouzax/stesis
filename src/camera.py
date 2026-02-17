@@ -3,17 +3,15 @@ import sys
 from config import CAM_ID_LEFT, CAM_ID_RIGHT
 
 def init_cameras():
-    cap_l = cv2.VideoCapture(CAM_ID_LEFT)
-    cap_r = cv2.VideoCapture(CAM_ID_RIGHT)
-    
-    # Optional: Set buffer size to 1 to reduce lag
-    cap_l.set(cv2.CAP_PROP_BUFFERSIZE, 1)
-    cap_r.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+    cap_l = cv2.VideoCapture(CAM_ID_LEFT, cv2.CAP_V4L2)
+    cap_r = cv2.VideoCapture(CAM_ID_RIGHT, cv2.CAP_V4L2)
     
     if not cap_l.isOpened() or not cap_r.isOpened():
         print("[ERROR] Could not open both cameras.")
         return None, None
-        
+    for cap in [cap_l, cap_r]:
+      cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
+      cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
     return cap_l, cap_r
 
 def get_frames(cap_l, cap_r, rotate_right=True):
