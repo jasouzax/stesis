@@ -14,23 +14,20 @@ class NumpyEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 class Calibration(Camera):
+    # State of calibration
+    objpoints = []
+    imgpoints_l = []
+    imgpoints_r = []
+    scanning_mode = False
+    overlay_mode = False
+    auto_capture_mode = False
+    image_count = 0
+    prev_corners_l = None
+    stability_start_time = None
+    last_capture_time = 0
+
     def __init__(self):
         super().__init__()
-        
-        # Calibration State
-        self.objpoints = []
-        self.imgpoints_l = []
-        self.imgpoints_r = []
-        
-        self.scanning_mode = False
-        self.overlay_mode = False
-        self.auto_capture_mode = False
-        self.image_count = 0
-        
-        # Auto-capture logic vars
-        self.prev_corners_l = None
-        self.stability_start_time = None
-        self.last_capture_time = 0
         
         # Prepare Object Points
         self.objp = np.zeros((self.CHECKERBOARD_DIMS[0]*self.CHECKERBOARD_DIMS[1], 3), np.float32)
