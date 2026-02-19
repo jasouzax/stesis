@@ -26,9 +26,9 @@ class Camera(Config):
             
         print("Cameras initialized.")
 
-    def loop(self):
+    def loop(self, show=True):
         if not self.cap_l or not self.cap_r:
-            return
+            return True
 
         # Capture frame
         ret_l, frame_l = self.cap_l.read()
@@ -38,30 +38,15 @@ class Camera(Config):
         # Check failure
         if not ret_l or not ret_r:
             print("Failed to read frames.")
-            self.running = False
-            return
+            return True
 
         # Right camera is upside down, in final design ensure not upside down
         frame_r = cv2.rotate(frame_r, cv2.ROTATE_180)
 
         # Generate final window
         self.frames = (frame_l, frame_r)
-        self.gui = cv2.hconcat([frame_l, frame_r])
-        super().loop()
-
-    def draw_overlays(self, img, mode='lines'):
-        h, w = img.shape[:2]
-        cx = w // 2
-        # Pitch Lines (Green)
-        for y in range(0, h, 40):
-            cv2.line(img, (0, y), (w, y), (0, 255, 0), 1)
-        # Yaw Center Line (Cyan)
-        cv2.line(img, (cx, 0), (cx, h), (255, 255, 0), 2)
-        # Roll Grid (Gray) - Only in Grid mode
-        if mode == 'grid':
-            for x in range(0, w, 40):
-                cv2.line(img, (x, 0), (x, h), (100, 100, 100), 1)
-        return img
+        if show: self.gui = cv2.hconcat([frame_l, frame_r])
+        return super().loop()
 
     def cleanup(self):
         print("Releasing cameras...")
@@ -70,12 +55,5 @@ class Camera(Config):
         super().cleanup()
 
 if __name__ == "__main__":
-    class CameraView(Camera):
-        def loop(self):
-            super().loop()
-            if self.frames[0] is not None and self.frames[1] is not None:
-                combined = cv2.hconcat([self.frames[0], self.frames[1]])
-                cv2.imshow("Camera Class Test", combined)
-    
     app = Camera()
     app.run()

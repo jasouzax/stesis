@@ -57,7 +57,7 @@ class Config:
     gui = np.zeros((200, 400, 3), dtype=np.uint8)
 
     def __init__(self):
-        self.running = True
+        pass
 
     # Intialize resources
     def setup(self):
@@ -67,7 +67,7 @@ class Config:
     def loop(self):
         cv2.imshow(f"Stesis {self.__class__.__name__}", self.gui)
         if cv2.waitKey(1) & 0xFF == ord('q'):
-            self.running = False
+            return True
 
     # On exit
     def cleanup(self):
@@ -78,8 +78,8 @@ class Config:
         print(f"Starting {self.__class__.__name__}...")
         self.setup()
         try:
-            while self.running:
-                self.loop()
+            while not self.loop():
+                pass
         except KeyboardInterrupt:
             print("\nStopped by user.")
         finally:
