@@ -1,5 +1,4 @@
 import cv2
-import sys
 from config import Config
 
 class Camera(Config):

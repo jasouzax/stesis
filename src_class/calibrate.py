@@ -28,12 +28,12 @@ class Calibration(Camera):
 
     def __init__(self):
         super().__init__()
-        
+
         # Prepare Object Points
         self.objp = np.zeros((self.CHECKERBOARD_DIMS[0]*self.CHECKERBOARD_DIMS[1], 3), np.float32)
         self.objp[:,:2] = np.mgrid[0:self.CHECKERBOARD_DIMS[0], 0:self.CHECKERBOARD_DIMS[1]].T.reshape(-1,2)
         self.objp *= self.SQUARE_SIZE_CM
-
+        
     def draw_overlays(self, img, mode='lines'):
         h, w = img.shape[:2]
         cx = w // 2
@@ -55,12 +55,9 @@ class Calibration(Camera):
         return np.mean(diff)
 
     def loop(self):
-        # 1. Get Frames from Camera Class
-        super().loop()
+        # Get frames
+        if super().loop(False): return True
         frame_l, frame_r = self.frames
-        
-        if frame_l is None or frame_r is None:
-            return
 
         h, w = frame_l.shape[:2]
         vis_l = frame_l.copy()
@@ -155,8 +152,7 @@ class Calibration(Camera):
         # Ideally, Config.run should allow checking keys.
         # But here checking waitKey again essentially means we pause for another 1ms. It's acceptable.
         
-        k = cv2.waitKey(1) & 0xFF
-        if k == 32: capture_now = True # Space
+        if self.key == 32: capture_now = True # Space
         
         if capture_now and self.scanning_mode and ret_c_l and ret_c_r:
             self.imgpoints_l.append(corners_l)
@@ -170,13 +166,13 @@ class Calibration(Camera):
             cv2.imshow('Stereo Calib Class', combined)
             cv2.waitKey(50)
 
-        if k == ord('a'):
+        if self.key == ord('a'):
             self.auto_capture_mode = not self.auto_capture_mode
             self.stability_start_time = None
             print(f"Auto-Capture: {self.auto_capture_mode}")
-        elif k == ord('o'): 
+        elif self.key == ord('o'): 
             self.overlay_mode = not self.overlay_mode
-        elif k == 13: # Enter
+        elif self.key == 13: # Enter
             self.scanning_mode = not self.scanning_mode
             if not self.scanning_mode and self.image_count > 0:
                 self.running = False # Stop loop to proceed to calibration

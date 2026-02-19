@@ -1,5 +1,4 @@
 import cv2
-import time
 import numpy as np
 
 class Config:
@@ -55,6 +54,7 @@ class Config:
 
     # SYSTEM
     gui = np.zeros((200, 400, 3), dtype=np.uint8)
+    key = 0
 
     def __init__(self):
         pass
@@ -65,9 +65,7 @@ class Config:
 
     # Repeated every frame
     def loop(self):
-        cv2.imshow(f"Stesis {self.__class__.__name__}", self.gui)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            return True
+        pass
 
     # On exit
     def cleanup(self):
@@ -79,7 +77,9 @@ class Config:
         self.setup()
         try:
             while not self.loop():
-                pass
+                self.key = cv2.waitKey(1) & 0xFF
+                cv2.imshow(f"Stesis {self.__class__.__name__}", self.gui)
+                if self.key == ord('q'): break
         except KeyboardInterrupt:
             print("\nStopped by user.")
         finally:
