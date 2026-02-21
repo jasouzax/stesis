@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.5">
+    <title>Stesis Thesis</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+
+<body>
+    <div id="grid"></div>
+    
+    <div class="audio-visualizer">
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+    </div>
+
+    <svg id="ui" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <filter id="def_glitch" primitiveUnits="objectBoundingBox" x="-10%" y="0%" width="120%" height="100%">
+                <feColorMatrix in="SourceGraphic" result="red" type="matrix" values="1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0"/>
+                <feColorMatrix in="SourceGraphic" result="green" type="matrix" values="0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0"/>
+                <feColorMatrix in="SourceGraphic" result="blue" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0"/>
+                <feOffset in="red" result="red-shifted" dx="-0.00015" dy="0">
+                    <animate attributeName="dx" keyTimes="0;0.1094;0.1828;0.2293;0.2980;0.4812;0.4838;1" values="0.00011;0.00011;0.00013;0.00002;0.00012;0.00002;0.00011;0.00010" begin="0" dur="5s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
+                    <animate attributeName="dy" keyTimes="0;0.1094;0.1828;0.2293;0.2980;0.4812;0.4838;1" values="0.00011;0.00011;0.00013;0.00002;0.00012;0.00002;0.00011;0.00010" begin="0" dur="5s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
+                </feOffset>
+                <feOffset in="blue" result="blue-shifted" dx="0.00015" dy="0">
+                    <animate attributeName="dx" keyTimes="0;0.0976;0.2207;0.3845;0.8012;0.8976;0.9693;1" values="0.00011;0.00003;0.00005;0.00015;0.00003;0.00005;0.00003;0.00010" begin="0" dur="5.5s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
+                    <animate attributeName="dy" keyTimes="0;0.0976;0.2207;0.3845;0.8012;0.8976;0.9693;1" values="0.00011;0.00003;0.00005;0.00015;0.00003;0.00005;0.00003;0.00010" begin="0" dur="5.5s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
+                </feOffset>
+                <feBlend mode="screen" in="red-shifted" in2="green" result="red-green"/>
+                <feBlend mode="screen" in="red-green" in2="blue-shifted" result="blended"/>
+            </filter>
+            
+            <mask id="def_pupil">
+                <rect x="-50%" y="-50%" width="100%" height="100%" fill="#fff" />
+                <path fill-rule="evenodd" fill="#000">
+                    <animate attributeName="d" dur="1s" repeatCount="1" keyTimes="0;0.35;1" fill="freeze" values="
+                        M 0 4 A 0 0 90 0 0 0 4 A 0 0 90 0 0 0 4 m 0 0 a 0 0 90 0 0 0 0 A 0 0 90 0 0 0 4 Z;
+                        M 0 4 A 0 0 90 0 0 0 4 A 0 0 90 0 0 0 4 m 0 0 a 0 0 90 0 0 0 0 A 0 0 90 0 0 0 4 Z;
+                        M-8 4A8 8 0 008 4 8 8 0 00-8 4m3-3a1 1 0 004 0A1 1 0 00-5 1Z
+                    " />
+                </path>
+            </mask>
+            
+            <path id="def_logo" mask="url(#def_pupil)" transform="scale(0.5)" >
+                <animate attributeName="d" dur="1s" repeatCount="1" fill="freeze" values="
+                    M-22 2-33-23C-33-25-20-35 0-35S33-25 33-23L22 2C22 2 21 3 19.79 3.67 15.89 6.05 11.87 7.44 6.99 8.2 2.51 8.93-2.51 8.93-6.99 8.2-11.87 7.44-15.89 6.05-19.79 3.67-21 3-22 2-22 2ZM-26 0-26 0C-15 14 15 14 26 0L26 0 38 1C39.02 1.18 39.38 2.26 38.29 3.99 37.04 6.16 33.39 10.77 30.86 12.99 27.75 15.78 24.65 18.03 20.96 19.93 17 21.88 13.29 23.27 8 24.22 2.77 25.2-2.77 25.2-8 24.22-13.29 23.27-17 21.88-20.96 19.93-24.65 18.03-27.75 15.78-30.86 12.99-33.39 10.77-37.04 6.16-38.29 3.99-39.38 2.26-39.02 1.18-38 1ZM-21 4C-11 4 11 4 21 4 11 4-11 4-21 4Z;
+                    M-22 2-33-23C-33-25-20-35 0-35S33-25 33-23L22 2C22-5 21-15 20-22 20-20 10-7 7-7 3-8-3-8-8-7-10-7-20-20-20-22-21-15-22-5-22 2ZM-26 0-24 4C-15 20 15 20 24 4L26 0 38-4C40-4 48 2 48 3 40 3 37 10 37 17 30 17 25 20 23 26 15 23 11 28 10 30 3 27-3 27-10 30-11 28-15 23-23 26-25 20-30 17-37 17-37 10-40 3-48 3-48 2-40-4-38-4ZM-21 4C-11-8 11-8 21 4 11 16-11 16-21 4Z
+                "/>
+            </path>
+            
+            <linearGradient id="def_head" gradientTransform="rotate(90)">
+                <stop offset="0%" stop-color="#AFD3CD00" />
+                <stop offset="100%" stop-color="#AFD3CD22" />
+            </linearGradient>
+        </defs>
+
+        <svg filter="url(#def_glitch)" class="glow-layer">
+            <use x="40" y="25" href="#def_logo" class="logo"/>
+            <text x="75" y="25" alignment-baseline="middle" class="name">Stesis</text>
+            <text x="275" y="12" alignment-baseline="middle" class="fulltitle">World Navigation Hat - Wearable AIoT Navigation Aid</text>
+            
+            <path class="fill"><animate attributeName="d" dur="0.5s" repeatCount="1" fill="freeze" keyTimes="0;0.6275;0.725;0.775;0.9625;0.9875;1" values="
+                M 0 50 L 0 50 L 0 50 L 0 53 L 0 53 L 0 53 Z M 0 53 L 0 50 L 0 50 L 0 53 Z;
+                M 0 50 L 250 50 L 250 50 L 252 53 L 252 53 L 0 53 Z M 252 53 L 250 50 L 250 50 L 252 53 Z;
+                M 0 50 L 250 50 L 275 25 L 280 25 L 252 53 L 0 53 Z M 300 25 L 303 22 L 372 22 L 375 25 Z M 385 25 L 382 22 L 387 22 L 390 25 Z
+            "/></path>
+            
+            <line x1="325" y1="25" x2="325" y2="25" transform="translate(-50 0)">
+                <animate attributeName="x2" from="325" to="100%" begin="0.3625s" dur="0.5s" fill="freeze" />
+            </line>
+            
+            <svg x="calc(100% - 50px)"><path class="fill">
+                <animate begin="0.8625s" attributeName="d" dur="0.105s" repeatCount="1" fill="freeze" keyTimes="0;0.4286;1" values="
+                    M0 25 0 25 0 25 5 25 5 25 5 25Z;
+                    M 0 25 L 25 50 L 25 50 L 30 50 L 30 50 L 5 25 Z;
+                    M 0 25L25 50 25 100 30 95 30 50 5 25Z
+                "/>
+            </path></svg>
+            
+            <line x1="250" y1="75" x2="250" y2="75">
+                <animate attributeName="x1" from="250" to="245" begin="0.907503s" dur="0.25s" fill="freeze" />
+                <animate attributeName="x2" from="250" to="255" begin="0.907503s" dur="0.25s" fill="freeze" />
+            </line>
+        </svg>
+    </svg>
+    
+    <script>
+        // 1. Scene Setup
+        var scene = new THREE.Scene();
+
+        // 2. Camera Setup
+        var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 10;
+        camera.position.y = 2;
+        camera.lookAt(0, 0, 0);
+
+        // 3. Renderer Setup 
+        var renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x000000, 0); 
+        document.body.appendChild(renderer.domElement);
+
+        // 4. Geometry and Material - Swapping cube for a spatial point cloud mapping
+        const particleCount = 2000;
+        const geometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+
+        for (let i = 0; i < particleCount * 3; i++) {
+            positions[i] = (Math.random() - 0.5) * 20; // Spread particles
+        }
+
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+        const material = new THREE.PointsMaterial({
+            color: 0xAFD3CD,
+            size: 0.05,
+            transparent: true,
+            opacity: 0.6
+        });
+
+        const pointCloud = new THREE.Points(geometry, material);
+        scene.add(pointCloud);
+
+        // 5. Animation Loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Rotate point cloud to simulate environment scanning
+            pointCloud.rotation.y += 0.002;
+            pointCloud.rotation.x += 0.0005;
+
+            // Optional breathing effect on particles
+            const time = Date.now() * 0.001;
+            material.size = 0.05 + Math.sin(time) * 0.02;
+
+            renderer.render(scene, camera);
+        }
+
+        // 6. Handle Window Resize
+        window.addEventListener('resize', function() {
+            var width = window.innerWidth;
+            var height = window.innerHeight;
+            renderer.setSize(width, height);
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+        });
+
+        animate();
+    </script>
+</body>
+
+</html>

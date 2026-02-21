@@ -20,6 +20,11 @@ $size: 25px
   src: url('Ethnocentric-Regular.otf') format('opentype')
   font-weight: normal
   font-style: normal
+@font-face
+  font-family: 'font_text'
+  src: url('SuperchargeStraightExpanded-BWRxB.otf') format('opentype')
+  font-weight: normal
+  font-style: normal
 body
     background-color: $bg
 canvas
@@ -72,7 +77,9 @@ canvas
             font: 13px font_regu
         .title
             fill: $fg
-            font: 13px font_fade
+            font: 13px font_text
+            &.dark
+                fill: $bg
         .icon
             path
                 fill: $bg
@@ -80,3 +87,6 @@ canvas
         .title
             fill: $fg
             font: 30px font_fade
+
+    .ani_load
+        display: none

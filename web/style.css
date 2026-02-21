@@ -18,6 +18,12 @@
   font-weight: normal;
   font-style: normal;
 }
+@font-face {
+  font-family: "font_text";
+  src: url("SuperchargeStraightExpanded-BWRxB.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+}
 body {
   background-color: #0D1114;
 }
@@ -84,7 +90,10 @@ canvas {
 }
 #ui .sidebar .title {
   fill: #AFD3CD;
-  font: 13px font_fade;
+  font: 13px font_text;
+}
+#ui .sidebar .title.dark {
+  fill: #0D1114;
 }
 #ui .sidebar .icon path {
   fill: #0D1114;
@@ -92,6 +101,9 @@ canvas {
 #ui .content .title {
   fill: #AFD3CD;
   font: 30px font_fade;
+}
+#ui .ani_load {
+  display: none;
 }
 
 /*# sourceMappingURL=style.css.map */
