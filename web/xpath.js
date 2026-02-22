@@ -4,7 +4,14 @@
 
     // -- Parsers --
     const parseDur = (str) => (str ? str.split(';').map(s => parseFloat(s.trim()) * 1000 || 1000) : [1000]);
-    const parseKeyTimes = (str) => (str ? str.split(';').map(s => s.split(',').map(n => parseFloat(n.trim()))) : []);
+    const parseKeyTimes = (str) => {
+        if (!str) return [];
+        // Remove comments e.g. (First Animation) before parsing
+        const cleanStr = str.replace(/\([^)]*\)/g, '').trim();
+        if (!cleanStr) return [];
+        
+        return cleanStr.split(';').map(s => s.split(',').map(n => parseFloat(n.trim())));
+    };
 
     function parseFrame(f, isX) {
         const match = f.match(/^(-?\d+(?:\.\d+)?)%(?:([+-]?\d+(?:\.\d+)?))?/);
@@ -66,6 +73,7 @@
     }
 
     // -- Initialization & Control --
+    // -- Initialization & Control --
     function initXPath(el) {
         if (xpathRegistry.has(el)) return;
 
@@ -92,9 +100,8 @@
             keyTimes: parseKeyTimes(el.getAttribute('keyTimes'))
         };
 
-        // Attach custom animate function
+        // Standard animation trigger
         el.animate = function(stateIndex, customDurSeconds) {
-            // CRITICAL FIX: Cache the exact current values so we can transition seamlessly to the next state
             for (let t of xpData.tokens) {
                 if (t.type === 'val') {
                     t.startVal = t.currentVal !== null ? t.currentVal : null;
@@ -104,6 +111,29 @@
             xpData.triggerTime = performance.now();
             xpData.customDur = customDurSeconds !== undefined ? customDurSeconds * 1000 : null;
             xpData.started = true;
+        };
+
+        // NEW: Returns the static 'd' string for a specific state and frame
+        el.animate_path = function(stateIndex, frameIndex) {
+            const svgRect = xpData.svg.getBoundingClientRect();
+            const dimX = svgRect.width;
+            const dimY = svgRect.height;
+            let dStr = '';
+            
+            for (let t of xpData.tokens) {
+                if (t.type === 'cmd') {
+                    dStr += t.val + ' ';
+                } else {
+                    // Find the safest state and frame indexes to prevent out-of-bounds errors
+                    const sIdx = Math.min(stateIndex, t.states.length - 1);
+                    const state = t.states[sIdx];
+                    const fIdx = Math.min(frameIndex, state.frames.length - 1);
+                    
+                    // Calculate and append the static coordinate
+                    dStr += state.frames[fIdx](dimX, dimY) + ' ';
+                }
+            }
+            return dStr.trim();
         };
 
         if (!svg.__resizeObserver) {
@@ -135,8 +165,17 @@
         });
     });
 
-    observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['d', 'dur', 'keyTimes', 'stroke', 'fill'] });
-    document.querySelectorAll('xpath').forEach(initXPath);
+    // Attach to the root element which is always available
+    observer.observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['d', 'dur', 'keyTimes', 'stroke', 'fill'] });
+
+    // Ensure we initialize elements correctly whether the script loads early or late
+    const initExistingXpaths = () => document.querySelectorAll('xpath').forEach(initXPath);
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initExistingXpaths);
+    } else {
+        initExistingXpaths();
+    }
 
     // -- Master Animation Loop --
     function animationLoop(time) {
