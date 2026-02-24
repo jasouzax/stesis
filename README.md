@@ -7,7 +7,7 @@
 
 ### Problem
 
-Despite advancements in assistive technology, the visually impaired continue to face significant barriers in physical navigation and digital accessibility (SDG 10). Existing Visual Sensory Substitution Devices (VSSDs) often fail due to **sensory overload**. By continuously flooding the user with audio data, these devices prevent "subconscious integration"—the brain's ability to process signals intuitively—leading to cognitive fatigue and device abandonment.
+Despite advancements in assistive technology, the visually impaired continue to face significant barriers in physical navigation and digital accessibility (SDG 10). Existing Visual Sensory Substitution Devices (VSSDs) often fail due to **sensory overload**. By continuously flooding the user with audio data, these devices prevent "subconscious integration" to the brain's ability to process signals intuitively, leading to cognitive fatigue and device abandonment.
 
 ### Solution
 
@@ -82,7 +82,6 @@ The codebase of this client side uses a modular design where each module represe
 - `rrl_kchr2023.py` (from `camera`) - This is the algorithm based on (Louis Commere, and Jean Rouat 2023) to be ran on State A as a comparision to the research's algorithm.
 
 The device connects to the AIoT server through an Android phone that hosts the hotspot, providing the internet, GPS, etc. The software dependencies of the android phone are as follows:
-- **Android Studio** - The software used to develop the android application
 - **Kotlin** - Programming language to program the app logic/server.
 - **Google Mobile Services (GMS)** - Provides APIs for the app to forward to the device like `play-services-location` for GPS location.
 
@@ -93,6 +92,11 @@ The server side uses the following software dependencies:
 - **Ollama** - Connects with Langauge Models for advance intellegence requests
 - **Cloudflare** - Allows server to be hosted through a cloudflare tunnel through tunneling
 
+For the softwares/tools used for development includes:
+- **VSCode** - IDE for developing client-side and server-side codebases
+- **Android Studio** - The software used to develop the android application
+- **SolidWorks** - CAD software to develop the 3d case model
+- **Github** - Manages the entire codebase, versions, and distribution
 
 ## Stereo Rectification Calibration
 
