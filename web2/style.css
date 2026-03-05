@@ -1,0 +1,39 @@
+html, body {
+  height: 100%;
+}
+
+body {
+  background-color: #0D1114;
+  margin: 0;
+  display: grid;
+  grid-template-rows: 25px 25px 25px auto 25px 25px;
+  grid-template-columns: 300px auto 25px;
+  background-image: radial-gradient(circle at center, transparent, #0D1114 80%), linear-gradient(#15191C 1px, transparent 1px), linear-gradient(90deg, #15191C 1px, transparent 1px);
+  background-size: 100% 100%, 50px 50px, 50px 50px;
+  filter: url(#glitch_def);
+  overflow: hidden;
+}
+
+#scifi_svg {
+  grid-area: 1/1/span 6/span 3;
+}
+#scifi_svg path {
+  fill: #AFD3CD;
+  stroke: #AFD3CD;
+  stroke-width: 2;
+}
+
+#logo_svg {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  overflow: visible;
+  zoom: 2;
+}
+#logo_svg path {
+  fill: #AFD3CD;
+  stroke-width: 0;
+  mask-image: url(#pupil_def);
+}
+
+/*# sourceMappingURL=style.css.map */

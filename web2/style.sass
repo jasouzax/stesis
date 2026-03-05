@@ -1,0 +1,41 @@
+// CONFIGURATIONS
+$fg: #AFD3CD
+$bg: #0D1114
+$u: 50px
+
+// Imports
+@use 'sass:math'
+
+// Container
+html, body
+    height: 100%
+body
+    $color: #15191C
+    background-color: $bg
+    margin: 0
+    display: grid
+    grid-template-rows: 0.5*$u 0.5*$u 0.5*$u auto 0.5*$u 0.5*$u
+    grid-template-columns: 6*$u auto 0.5*$u
+    background-image: radial-gradient(circle at center, transparent, $bg 80%), linear-gradient($color 1px, transparent 1px), linear-gradient(90deg, $color 1px, transparent 1px)
+    background-size: 100% 100%, $u $u, $u $u
+    filter: url(#glitch_def)
+    overflow: hidden
+
+// Scifi Interface
+#scifi_svg
+    grid-area: 1 / 1 / span 6 / span 3
+    path
+        fill: $fg
+        stroke: $fg
+        stroke-width: 2
+// Logo
+#logo_svg
+    position: fixed
+    left: 50%
+    top: 50%
+    overflow: visible
+    zoom: 2
+    path
+        fill: $fg
+        stroke-width: 0
+        mask-image: url(#pupil_def)

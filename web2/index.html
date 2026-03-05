@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=0.5">
+        <title>Stesis Thesis</title>
+        <link rel="stylesheet" href="style.css" />
+        <script src="xpath.js"></script>
+        <svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <!-- Glitch Effect -->
+                <filter id="glitch_def" primitiveUnits="objectBoundingBox" x="-10%" y="0%" width="120%" height="100%">
+                    <feColorMatrix in="SourceGraphic" result="red" type="matrix" values="1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0"/>
+                    <feColorMatrix in="SourceGraphic" result="green" type="matrix" values="0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0"/>
+                    <feColorMatrix in="SourceGraphic" result="blue" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0"/>
+                    <feOffset in="red" result="red-shifted" dx="-0.0012" dy="0">
+                        <animate attributeName="dx" keyTimes="0;0.1094;0.1828;0.2293;0.2980;0.4812;0.4838;1" values="0.0009;0.0009;0.0011;0.0002;0.0010;0.0002;0.0009;0.0008" begin="0" dur="5s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
+                        <animate attributeName="dy" keyTimes="0;0.1094;0.1828;0.2293;0.2980;0.4812;0.4838;1" values="0.0009;0.0009;0.0011;0.0002;0.0010;0.0002;0.0009;0.0008" begin="0" dur="5s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
+                    </feOffset>
+                    <feOffset in="blue" result="blue-shifted" dx="0.0012" dy="0">
+                        <animate attributeName="dx" keyTimes="0;0.0976;0.2207;0.3845;0.8012;0.8976;0.9693;1" values="0.0009;0.0003;0.0004;0.0012;0.0003;0.0004;0.0003;0.0008" begin="0" dur="5.5s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
+                        <animate attributeName="dy" keyTimes="0;0.0976;0.2207;0.3845;0.8012;0.8976;0.9693;1" values="0.0009;0.0003;0.0004;0.0012;0.0003;0.0004;0.0003;0.0008" begin="0" dur="5.5s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
+                    </feOffset>
+                    <feBlend mode="screen" in="red-shifted" in2="green" result="red-green"/>
+                    <feBlend mode="screen" in="red-green" in2="blue-shifted" result="blended"/>
+                    <feOffset in="blended" dx="0" dy="0" y="0%" height="18%" result="slice_0">
+                        <animate attributeName="dx" keyTimes="0;0.2570;0.3172;0.4820;0.5934;0.8557;0.9105;1" values="0.0006;0.0009;0.0007;0.0012;0.0009;0.0004;0.0009;0.0003" begin="0s" dur="6.7034s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
+                        <animate attributeName="dy" keyTimes="0;0.2570;0.3172;0.4820;0.5934;0.8557;0.9105;1" values="0.0006;0.0009;0.0007;0.0012;0.0009;0.0004;0.0009;0.0003" begin="0s" dur="6.7034s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
+                    </feOffset>                
+                    <feOffset in="blended" dx="0" dy="0" y="18%" height="14%" result="slice_1">
+                        <animate attributeName="dx" keyTimes="0;0.4310;0.5190;0.6478;0.6489;0.7844;0.7930;1" values="0.0011;0.0005;0.0006;0.0005;0.0006;0.0008;0.0008;0.0009" begin="0s" dur="6.2038s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
+                        <animate attributeName="dy" keyTimes="0;0.4310;0.5190;0.6478;0.6489;0.7844;0.7930;1" values="0.0011;0.0005;0.0006;0.0005;0.0006;0.0008;0.0008;0.0009" begin="0s" dur="6.2038s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
+                    </feOffset>
+                    <feOffset in="blended" dx="0" dy="0" y="32%" height="16%" result="slice_2">
+                        <animate attributeName="dx" keyTimes="0;0.1857;0.2727;0.3804;0.6001;0.7463;0.7986;1" values="0.0002;0.0007;0.0009;0.0005;0.0005;0.0012;0.0010;0.0010" begin="0s" dur="7.3238s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
+                        <animate attributeName="dy" keyTimes="0;0.1857;0.2727;0.3804;0.6001;0.7463;0.7986;1" values="0.0002;0.0007;0.0009;0.0005;0.0005;0.0012;0.0010;0.0010" begin="0s" dur="7.3238s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
+                    </feOffset>
+                    <feOffset in="blended" dx="0" dy="0" y="48%" height="8%" result="slice_3">
+                        <animate attributeName="dx" keyTimes="0;0.2305;0.4179;0.4274;0.6528;0.6575;0.9102;1" values="0.0006;0.0009;0.0003;0.0005;0.0003;0.0009;0.0011;0.0010" begin="0s" dur="6.8315s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
+                        <animate attributeName="dy" keyTimes="0;0.2305;0.4179;0.4274;0.6528;0.6575;0.9102;1" values="0.0006;0.0009;0.0003;0.0005;0.0003;0.0009;0.0011;0.0010" begin="0s" dur="6.8315s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
+                    </feOffset>
+                    <feOffset in="blended" dx="0" dy="0" y="56%" height="11%" result="slice_4">
+                        <animate attributeName="dx" keyTimes="0;0.1400;0.1469;0.2086;0.4002;0.7897;0.8509;1" values="0.0002;0.0006;0.0007;0.0003;0.0006;0.0008;0.0004;0.0003" begin="0s" dur="5.7577s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
+                        <animate attributeName="dy" keyTimes="0;0.1400;0.1469;0.2086;0.4002;0.7897;0.8509;1" values="0.0002;0.0006;0.0007;0.0003;0.0006;0.0008;0.0004;0.0003" begin="0s" dur="5.7577s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
+                    </feOffset>
+                    <feOffset in="blended" dx="0" dy="0" y="67%" height="14%" result="slice_5">
+                        <animate attributeName="dx" keyTimes="0;0.3324;0.3807;0.8141;0.8554;0.8816;0.9973;1" values="0.0007;0.0005;0.0009;0.0003;0.0003;0.0008;0.0008;0.0011" begin="0s" dur="6.7145s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
+                        <animate attributeName="dy" keyTimes="0;0.3324;0.3807;0.8141;0.8554;0.8816;0.9973;1" values="0.0007;0.0005;0.0009;0.0003;0.0003;0.0008;0.0008;0.0011" begin="0s" dur="6.7145s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
+                    </feOffset>
+                    <feOffset in="blended" dx="0" dy="0" y="81%" height="9%" result="slice_6">
+                        <animate attributeName="dx" keyTimes="0;0.1001;0.2464;0.4813;0.7067;0.7456;0.8933;1" values="0.0002;0.0011;0.0007;0.0005;0.0002;0.0003;0.0006;0.0008" begin="0s" dur="6.9425s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
+                        <animate attributeName="dy" keyTimes="0;0.1001;0.2464;0.4813;0.7067;0.7456;0.8933;1" values="0.0002;0.0011;0.0007;0.0005;0.0002;0.0003;0.0006;0.0008" begin="0s" dur="6.9425s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
+                    </feOffset>
+                    <feOffset in="blended" dx="0" dy="0" y="90%" height="10%" result="slice_7">
+                        <animate attributeName="dx" keyTimes="0;0.2581;0.3914;0.5443;0.7458;0.9339;0.9901;1" values="0.0007;0.0003;0.0003;0.0005;0.0005;0.0011;0.0002;0.0009" begin="0s" dur="4.7741s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
+                        <animate attributeName="dy" keyTimes="0;0.2581;0.3914;0.5443;0.7458;0.9339;0.9901;1" values="0.0007;0.0003;0.0003;0.0005;0.0005;0.0011;0.0002;0.0009" begin="0s" dur="4.7741s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
+                    </feOffset>
+                    <feMerge>
+                        <feMergeNode in="slice_0"/><feMergeNode in="slice_1"/><feMergeNode in="slice_2"/><feMergeNode in="slice_3"/><feMergeNode in="slice_4"/><feMergeNode in="slice_5"/><feMergeNode in="slice_6"/><feMergeNode in="slice_7"/>
+                    </feMerge>
+                </filter>
+                <!-- Logo Pupil -->
+                <mask id="pupil_def">
+                    <rect x="-50%" y="-50%" width="100%" height="100%" fill="#fff" />
+                    <path fill-rule="evenodd" fill="#000">
+                        <animate attributeName="d" dur="1s" repeatCount="1" keyTimes="0;0.35;1" fill="freeze" values="
+                            M 0 4 A 0 0 90 0 0 0 4 A 0 0 90 0 0 0 4 m 0 0 a 0 0 90 0 0 0 0 A 0 0 90 0 0 0 4 Z;
+                            M 0 4 A 0 0 90 0 0 0 4 A 0 0 90 0 0 0 4 m 0 0 a 0 0 90 0 0 0 0 A 0 0 90 0 0 0 4 Z;
+                            M-8 4A8 8 0 008 4 8 8 0 00-8 4m3-3a1 1 0 004 0A1 1 0 00-5 1Z
+                        " />
+                    </path>
+                </mask>
+            </defs>
+        </svg>
+    </head>
+    <body class="title n0">
+        <!-- Scifi Interface -->
+        <script type="text/xpath" id="scifi">
+            (Elliminate offset bug)
+            M 100% 100% L 100% 100%
+            (Head)
+            M-5 50L[297 50[322 25[O100% 0
+                -45 25[-20 50[-20 75 -25 80[<]-25 80]-25 55]-53 25
+            O0 0]328 25]300 55] -5 55Z
+
+            (Right Side)
+            >o 0 100%
+                L-23 -150[-48 -125[<]-48 -125]-23 -150
+            o 0 -100%
+
+            (Status)
+            > -56 -125 [
+                [   A 45 45 0 0 0 -111 -126
+                    A 45 45 0 0 1 -56 -125 []]
+                A 45 45 0 0 1 -56 -54
+                [   A 45 45 0 0 1 -111 -54
+                    [L -119 -54 [<]
+                        [   A 50 50 0 0 1 -119 -126
+                            L -111 -126
+                            A 45 45 0 0 0 -111 -54 []]
+                        L -111 -54 []]
+                    A 45 45 0 0 0 -56 -54
+                ]
+                L -49 -54
+                A 50 50 0 0 0 -48 -125 []]
+            L
+            
+            (Bottom)
+            > -148 -25 [ O 0 100% 322 -25 [ 297 -50 [ 247 -50 [ 50 -50 [
+            A 5 5 0 0 0 40 -50 A 5 5 0 0 0 50 -50 A 5 5 0 0 1 40 -50 A 5 5 0 0 1 50 -50L
+            ]
+            50 -50 ] 247 -50 250 -55 ] 300 -55 ] 328 -25 O 100% 100%] -148 -25 -119 -54
+        </script>
+        <!-- Logo -->
+        <script type="text/xpath" id="logo">
+            M 0 0[
+                ( Hat )
+                M -22 2 
+                L -33 -23
+                C -33 -25 -20 -35 0 -35
+                S 33 -25 33 -23
+                L 22 2
+                C 22,21,22 2,2,-5 21,20,21 3,2,-15 19.79,18,20 3.67,2,-22
+                15.89,17,20 6.05,2,-20 11.87,9,10 7.44,2,-7 6.99,6,7 8.2,2,-7
+                2.51,1,3 8.93,2,-8 -2.51,-2,-3 8.93,2,-8 -6.99,-7,-8 8.2,2,-7
+                -11.87,-9,-10 7.44,2,-7 -15.89,-17,-20 6.05,2,-20 -19.79,-18,-20 3.67,2,-22
+                -21,-20,-21 3,2,-15 -22,-21,-22 2,2,-5 -22 2
+                Z
+
+                ( Wing )
+                M -26 0 
+                L -26,-26,-24 0,0,4
+                C -15 14,14,20 15 14,14,20 26,26,24 0,0,4
+                L 26 0 
+                L 38,33.64,38 1,-1.67,-4
+                C 39.02,39.31,40 1.18,-1.18,-4 39.38,44.48,48 2.26,2.05,2 38.29,42.72,48 3.99,3.33,3
+                37.04,38.27,40 6.16,5.09,3 33.39,34.25,37 10.77,11.85,10 30.86,33.52,37 12.99,15.5,17
+                27.75,27.62,30 15.78,17.64,17 24.65,23.66,25 18.03,19.83,20 20.96,20.55,23 19.93,23.6,26
+                17,13.19,15 21.88,23.54,23 13.29,10.51,11 23.27,25.61,28 8,8.8,10 24.22,27.13,30
+                2.77,1.92,3 25.2,25.31,27 -2.77,-1.92,-3 25.2,25.31,27 -8,-8.8,-10 24.22,27.13,30
+                -13.29,-10.51,-11 23.27,25.61,28 -17,-13.19,-15 21.88,23.54,23 -20.96,-20.55,-23 19.93,23.6,26
+                -24.65,-23.66,-25 18.03,19.83,20 -27.75,-27.62,-30 15.78,17.64,17 -30.86,-33.52,-37 12.99,15.5,17
+                -33.39,-34.25,-37 10.77,11.85,10 -37.04,-38.27,-40 6.16,5.09,3 -38.29,-42.72,-48 3.99,3.33,3
+                -39.38,-44.48,-48 2.26,2.05,2 -39.02,-39.31,-40 1.18,-1.18,-4 -38,-33.64,-38 1,-1.67,-4
+                Z
+
+                ( Eye )
+                M -21 4
+                C -11 4,4,-8 11 4,4,-8 21 4
+                11 4,4,16 -11 4,4,16 -21 4
+                Z
+
+                ( Pupil )
+                M 0,0,-8 4 
+                A 0,0,8 0,0,8 90,90,0 0 0 0,0,8 4 
+                A 0,0,8 0,0,8 90,90,0 0 0 0,0,-8 4 
+                m 0,0,3 0,0,-3 
+                a 0,0,1 0,0,1 90,90,0 0 0 0,0,4 0 
+                A 0,0,1 0,0,1 90,90,0 0 0 0,0,-5 4,4,1 
+                Z
+                
+                (d 1)
+            []]
+        </script>
+        <!--
+            {u=50} (Unit)
+            {b=3} (Border)
+            {l=6u} (Left grid)
+
+            (Top Head)
+            M0 {u} L [ {l-b} {u} [ {l-b+.5u} {.5u} [ O100% 0
+                {2b-u}   {.5u}      [
+                {2b-.5u} {u}        [
+                {2b-.5u} {1.5u}
+                {b-.5u} {1.5u+1b}   [<]
+                {-.5u} {1.5u+2b}    ]
+                {-.5u} {u+b}        ]
+                {-u} {.5u+b}
+            O0 0L]{l-b+.5u+2b} {.5u+b}] {l} {u+2b}] 0 {u+2b}Z
+        -->
+        <script>
+            /*onload = () => {
+                document.getElementById('ui').load(1,1);
+                /*setTimeout(()=>document.getElementById('ui').load(1,2), 100);*
+            };*/
+        </script>
+    </body>
+</html>
