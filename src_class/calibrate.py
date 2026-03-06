@@ -14,20 +14,21 @@ class NumpyEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 class Calibration(Camera):
-    # State of calibration
-    objpoints = []
-    imgpoints_l = []
-    imgpoints_r = []
-    scanning_mode = False
-    overlay_mode = False
-    auto_capture_mode = False
-    image_count = 0
-    prev_corners_l = None
-    stability_start_time = None
-    last_capture_time = 0
-
     def __init__(self):
         super().__init__()
+        
+        # State of calibration
+        self.objpoints = []
+        self.imgpoints_l = []
+        self.imgpoints_r = []
+        self.scanning_mode = False
+        self.overlay_mode = False
+        self.auto_capture_mode = False
+        self.image_count = 0
+        self.prev_corners_l = None
+        self.stability_start_time = None
+        self.last_capture_time = 0
+
 
         # Prepare Object Points
         self.objp = np.zeros((self.CHECKERBOARD_DIMS[0]*self.CHECKERBOARD_DIMS[1], 3), np.float32)
@@ -59,6 +60,7 @@ class Calibration(Camera):
         if super().loop(False): return True
         frame_l, frame_r = self.frames
 
+        # Intialize clones
         h, w = frame_l.shape[:2]
         vis_l = frame_l.copy()
         vis_r = frame_r.copy()
@@ -68,12 +70,10 @@ class Calibration(Camera):
         # Detect Checkerboards
         ret_c_l, ret_c_r = False, False
         corners_l, corners_r = None, None
-
         if self.scanning_mode:
             flags = cv2.CALIB_CB_ADAPTIVE_THRESH + cv2.CALIB_CB_NORMALIZE_IMAGE + cv2.CALIB_CB_FAST_CHECK
             ret_c_l, corners_l = cv2.findChessboardCorners(gray_l, self.CHECKERBOARD_DIMS, flags)
             ret_c_r, corners_r = cv2.findChessboardCorners(gray_r, self.CHECKERBOARD_DIMS, flags)
-
             if ret_c_l:
                 corners_l = cv2.cornerSubPix(gray_l, corners_l, (11,11), (-1,-1), (cv2.TERM_CRITERIA_EPS+cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001))
                 cv2.drawChessboardCorners(vis_l, self.CHECKERBOARD_DIMS, corners_l, ret_c_l)
@@ -81,16 +81,16 @@ class Calibration(Camera):
                 corners_r = cv2.cornerSubPix(gray_r, corners_r, (11,11), (-1,-1), (cv2.TERM_CRITERIA_EPS+cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001))
                 cv2.drawChessboardCorners(vis_r, self.CHECKERBOARD_DIMS, corners_r, ret_c_r)
 
-        # UI & Visualization
+        # Setup visualization mode
         if self.overlay_mode:
             blended = cv2.addWeighted(vis_l, 0.5, vis_r, 0.5, 0)
             blended = self.draw_overlays(blended, mode='grid')
-            combined = np.hstack((blended, blended))
+            self.gui = np.hstack((blended, blended))
             mode_text = "MODE: OVERLAY"
         else:
             vis_l = self.draw_overlays(vis_l, mode='lines')
             vis_r = self.draw_overlays(vis_r, mode='lines')
-            combined = np.hstack((vis_l, vis_r))
+            self.gui = np.hstack((vis_l, vis_r))
             mode_text = "MODE: SIDE-BY-SIDE"
 
         # Scanning Logic
@@ -135,25 +135,17 @@ class Calibration(Camera):
                 status_color = (0, 0, 255)
 
         # Draw Status
-        cv2.putText(combined, f"{mode_text} | Captures: {self.image_count}", (30, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255,255,255), 2)
-        cv2.putText(combined, status_text, (30, 80), cv2.FONT_HERSHEY_SIMPLEX, 1.0, status_color, 2)
+        cv2.putText(self.gui, f"{mode_text} | Captures: {self.image_count}", (30, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255,255,255), 2)
+        cv2.putText(self.gui, status_text, (30, 80), cv2.FONT_HERSHEY_SIMPLEX, 1.0, status_color, 2)
 
         if self.auto_capture_mode:
-            cv2.putText(combined, "[AUTO ACTIVE]", (w*2 - 250, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 255), 2)
+            cv2.putText(self.gui, "[AUTO ACTIVE]", (w*2 - 250, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 255), 2)
             if self.scanning_mode and progress > 0:
                 bar_width = int((w*2) * progress)
-                cv2.rectangle(combined, (0, h-20), (bar_width, h), (0, 255, 0), -1)
-
-        cv2.imshow('Stereo Calib Class', combined)
-
-        # Input Handling for Catching 'Space' or 'Enter'
-        # Config.run handles 'q', but we need other keys.
-        # But Config.run has a waitKey(1). We can't have two waitKeys or we miss events.
-        # Ideally, Config.run should allow checking keys.
-        # But here checking waitKey again essentially means we pause for another 1ms. It's acceptable.
+                cv2.rectangle(self.gui, (0, h-20), (bar_width, h), (0, 255, 0), -1)
         
-        if self.key == 32: capture_now = True # Space
-        
+        # KEY: Start capturing mode
+        if self.key == ord(' '): capture_now = True
         if capture_now and self.scanning_mode and ret_c_l and ret_c_r:
             self.imgpoints_l.append(corners_l)
             self.imgpoints_r.append(corners_r)
@@ -162,62 +154,61 @@ class Calibration(Camera):
             self.last_capture_time = time.time()
             print(f"Captured Image #{self.image_count}")
             # Flash
-            cv2.rectangle(combined, (0,0), (w*2, h), (255,255,255), -1)
-            cv2.imshow('Stereo Calib Class', combined)
+            cv2.rectangle(self.gui, (0,0), (w*2, h), (255,255,255), -1)
+            self.render()
             cv2.waitKey(50)
-
+        # KEY: Start auto capture mode
         if self.key == ord('a'):
             self.auto_capture_mode = not self.auto_capture_mode
             self.stability_start_time = None
             print(f"Auto-Capture: {self.auto_capture_mode}")
+        # KEY: Toggle overlaying mode
         elif self.key == ord('o'): 
             self.overlay_mode = not self.overlay_mode
-        elif self.key == 13: # Enter
+        # KEY: Start calibration
+        elif self.key == 13:
             self.scanning_mode = not self.scanning_mode
             if not self.scanning_mode and self.image_count > 0:
-                self.running = False # Stop loop to proceed to calibration
+                return True
 
     def perform_calibration(self):
         print("Calibrating...")
-        # Need width/height. We can get it from self.frames if available, else assume standard
+        # Get image dimension
         if self.frames[0] is None: 
             print("No frames available for calibration dimensions.")
             return
-
         h, w = self.frames[0].shape[:2]
         img_size = (w, h)
 
+        # Calibrate
         ret_l, mtx_l, dist_l, _, _ = cv2.calibrateCamera(self.objpoints, self.imgpoints_l, img_size, None, None)
         ret_r, mtx_r, dist_r, _, _ = cv2.calibrateCamera(self.objpoints, self.imgpoints_r, img_size, None, None)
-
         flags = cv2.CALIB_FIX_INTRINSIC
         crit = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 1e-5)
         ret_s, M1, d1, M2, d2, R, T, E, F = cv2.stereoCalibrate(
             self.objpoints, self.imgpoints_l, self.imgpoints_r, mtx_l, dist_l, mtx_r, dist_r, img_size, criteria=crit, flags=flags
         )
-
         R1, R2, P1, P2, Q, roi1, roi2 = cv2.stereoRectify(M1, d1, M2, d2, img_size, R, T)
 
         calc_baseline = np.linalg.norm(T)
         fov_x_l = 2 * np.arctan(w / (2 * M1[0, 0])) * 180 / np.pi
         fov_x_r = 2 * np.arctan(w / (2 * M2[0, 0])) * 180 / np.pi
 
+        # Proccess results
         print(f"RMS Stereo: {ret_s:.4f}")
         print(f"Baseline: {calc_baseline:.4f} cm")
 
-        data = {
-            "timestamp": time.time(),
-            "baseline": self.BASELINE,
-            "width": w, "height": h,
-            "M1": M1, "d1": d1, "M2": M2, "d2": d2,
-            "R": R, "T": T, "R1": R1, "R2": R2, "P1": P1, "P2": P2, "Q": Q,
-            "pixel_error": ret_s,
-            "calculated_baseline": calc_baseline,
-        }
-
         fname = f"stereo-{self.BASELINE}.json"
         with open(fname, 'w') as f: 
-            json.dump(data, f, cls=NumpyEncoder, indent=4)
+            json.dump({
+                "timestamp": time.time(),
+                "baseline": self.BASELINE,
+                "width": w, "height": h,
+                "M1": M1, "d1": d1, "M2": M2, "d2": d2,
+                "R": R, "T": T, "R1": R1, "R2": R2, "P1": P1, "P2": P2, "Q": Q,
+                "pixel_error": ret_s,
+                "calculated_baseline": calc_baseline,
+            }, f, cls=NumpyEncoder, indent=4)
         print(f"Saved to {fname}")
 
     def cleanup(self):

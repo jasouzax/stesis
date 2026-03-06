@@ -197,21 +197,24 @@ class Audio(Radar):
         # depth_view from Depth
         # radar_view from Radar
         
-        if self.rect_frames[0] is not None and self.depth_view is not None and self.radar_view is not None:
-            vis_l = self.draw_overlays(self.rect_frames[0].copy())
-            vis_r = self.draw_overlays(self.rect_frames[1].copy())
+        if self.rect_frames[0] is not None and self.depth is not None and self.radar_view is not None:
+            #vis_l = self.draw_overlays(self.rect_frames[0].copy())
+            #vis_r = self.draw_overlays(self.rect_frames[1].copy())
             
             # Add sweep line to depth view here again (as per original logic logic duplication)
-            depth_disp = self.depth_view.copy()
+            depth_disp = self.depth.copy()
             if self.sw_x >= self.LEFT_OFFSET:
                 cv2.line(depth_disp, (self.sw_x, 0), (self.sw_x, self.height), (255, 255, 255), 2)
             
-            top_row = np.hstack((vis_l, vis_r))
+            top_row = np.hstack(self.rect_frames) #(vis_l, vis_r))
             mid_row = np.hstack((depth_disp, self.radar_view))
             bot_row = np.hstack((spectro_L_disp, spectro_R_disp))
             
-            self.audio_ui = np.vstack((top_row, mid_row, bot_row))
-        
+            self.gui = np.vstack((top_row, mid_row, bot_row))
+        else:
+            self.gui = np.zeros((500, 500, 3), dtype=np.uint8)
+            print(self.rect_frames[0], self.depth)
+        #self.gui = np.hstack((self.gui, self.audio_ui))
     def cleanup(self):
         super().cleanup()
         if self.audio_mgr: self.audio_mgr.close()

@@ -6,20 +6,27 @@ class Config:
     DOMAIN = 8080               # Port of server
     HOST = '0.0.0.0'            # Host of server
 
-    # CAMERA: camera.py
-    CAM_ID_LEFT = 0             # /dev/video{ID} of left camera
-    CAM_ID_RIGHT = 2            # /dev/video{ID} of right camera
+    # CAMERA: camera.py - Use `v4l2-ctl --list-devices` to find cameras
+    CAM_ID_LEFT = 2             # /dev/video{ID} of left camera
+    CAM_ID_RIGHT = 0            # /dev/video{ID} of right camera
+    WIDTH = 640                 # Input video width
+    HEIGHT = 480                # Input video height
+    SCALE = 0.5                 # Camera scaled to improve performance
+    
+    # IMU
+    ACCEL_DEADBAND = 0.05       # Simple deadband filter for accelerometer noise
+    VELOCITY_DECAY = 0.95       # Friction/Decay factor to stop drift when no motion
+    IMU_ADDR = 0x68             # IMU I2C Address
 
     # CALIBRATION
     BASELINE = 13.0             # Distance between left and right camera in CM
     CHECKERBOARD_DIMS = (9, 6)  # Calibration board dimensions
-    SQUARE_SIZE_CM = 2.5        # Calibration board square size in CM
+    SQUARE_SIZE_CM = 2.9        # Calibration board square size in CM
     AUTO_CAPTURE_DELAY = 2.0    # Automatic calibration capture delay in Seconds
     MOVEMENT_THRESHOLD = 3.0    # Movement treshold to stop/break automatic calibration in Seconds
     POST_CAPTURE_COOLDOWN = 2.0 # Cooldown after capture to continue automatic capture in Seconds
 
     # DEPTHMAP
-    SCALE = 0.5                 # Camera scaled to improve performance
     USE_WLS = True              # Enable WLS for cleaner depth map?
     MIN_DISPARITY = 0           #
     NUM_DISPARITIES = 16*3      #
@@ -52,12 +59,11 @@ class Config:
     MAX_VOL_DIST_CM = 50.0           # Inner boundary: 100% Volume (Cyan circle)
     MIN_VOL_DIST_CM = 250.0          # Outer boundary: 0% Volume (Gray circle)
 
-    # SYSTEM
-    gui = np.zeros((200, 400, 3), dtype=np.uint8)
-    key = 0
-
     def __init__(self):
-        pass
+        self.gui = np.zeros((500, 500, 3), dtype=np.uint8)
+        self.key = 0
+        self.width = int(self.WIDTH*self.SCALE)
+        self.height = int(self.HEIGHT*self.SCALE)
 
     # Intialize resources
     def setup(self):
@@ -71,14 +77,19 @@ class Config:
     def cleanup(self):
         cv2.destroyAllWindows()
 
+    def render(self):
+        cv2.imshow(f"Stesis {self.__class__.__name__}", self.gui)
+
     # Main function
     def run(self):
         print(f"Starting {self.__class__.__name__}...")
-        self.setup()
+        running = True
+        if self.setup(): running = False
         try:
-            while not self.loop():
+            while running:
                 self.key = cv2.waitKey(1) & 0xFF
-                cv2.imshow(f"Stesis {self.__class__.__name__}", self.gui)
+                running = not self.loop()
+                self.render()
                 if self.key == ord('q'): break
         except KeyboardInterrupt:
             print("\nStopped by user.")
