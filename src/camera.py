@@ -1,56 +1,61 @@
 import cv2
-from config import Config
+#from config import Config
+from imu import IMU
 
-class Camera(Config):
-    cap_l = None
-    cap_r = None
-    frames = (None, None)
-    ret_values = (False, False)
-
-    def setup(self):
-        print("Initializing Cameras...")
-
-        # Connect to cameras
-        self.cap_l = cv2.VideoCapture(self.CAM_ID_LEFT, cv2.CAP_V4L2)
-        self.cap_r = cv2.VideoCapture(self.CAM_ID_RIGHT, cv2.CAP_V4L2)
+class Camera(IMU):
+    def __init__(self):
+        super().__init__()
+        self.camera = (None, None)
+        self.frames = [None, None]
+        self.ret_values = (False, False)
         
+    def setup(self):
+        super().setup()
+        print('Initializing Cameras...', end='', flush=True)
         # Setup cameras
-        for cap in [self.cap_l, self.cap_r]:
+        self.camera = tuple(cv2.VideoCapture(ID, cv2.CAP_V4L2) for ID in (self.CAM_ID_LEFT, self.CAM_ID_RIGHT))
+        for cap in self.camera:
             if not cap.isOpened():
-                print("Error: Camera is not opened")
-                self.running = False
-                return
+                print('\n\x1b[31mError:\x1b[0m Camera is not opened')
+                return True
             cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
             cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
-            
-        print("Cameras initialized.")
+        print('\rCameras initialized.       ')
 
-    def loop(self, show=True):
-        if not self.cap_l or not self.cap_r:
+    def loop(self, show=True, resize=False):
+        if super().loop(): return True
+
+        # Check if camera is opened
+        if not all(self.camera):
+            print('\x1b[31mError:\x1b[0m Camera Capture Failed')
             return True
 
         # Capture frame
-        ret_l, frame_l = self.cap_l.read()
-        ret_r, frame_r = self.cap_r.read()
-        self.ret_values = (ret_l, ret_r)
+        self.ret_values, self.frames = zip(*(cap.read() for cap in self.camera))
+        self.frames = list(self.frames)
 
         # Check failure
-        if not ret_l or not ret_r:
-            print("Failed to read frames.")
+        if not all(self.ret_values):
+            print('\x1b[31mError:\x1b[0m Failed to read frames.')
             return True
 
-        # Right camera is upside down, in final design ensure not upside down
-        frame_r = cv2.rotate(frame_r, cv2.ROTATE_180)
+        # Flip images
+        for n in range(2):
+            self.frames[n] = cv2.rotate(self.frames[n], cv2.ROTATE_180)
+
+        # Resize
+        if resize:
+            self.frames = [cv2.resize(frame, (self.width, self.height), interpolation=cv2.INTER_AREA) for frame in self.frames]
 
         # Generate final window
-        self.frames = (frame_l, frame_r)
-        if show: self.gui = cv2.hconcat([frame_l, frame_r])
-        return super().loop()
+        if show: self.gui = cv2.hconcat(self.frames)
+        self.frames = tuple(self.frames)
 
     def cleanup(self):
-        print("Releasing cameras...")
-        if self.cap_l: self.cap_l.release()
-        if self.cap_r: self.cap_r.release()
+        print('Releasing Cameras...', end='', flush=True)
+        for camera in self.camera:
+            camera.release()
+        print('\rCameras released.')
         super().cleanup()
 
 if __name__ == "__main__":

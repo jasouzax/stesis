@@ -3,14 +3,14 @@ import numpy as np
 import math
 import time
 from depth import Depth
-from imu import IMU
+#from imu import IMU
 
-class Radar(Depth, IMU):
+class Radar(Depth):
     def __init__(self):
-        super().__init__() # Calls Depth.__init__, which calls Camera.__init__ -> IMU.__init__ -> Config.__init__
+        super().__init__()
         
         # Radar State
-        self.radar_img = None 
+        self.radar = None 
         self.prev_distances = None
         self.last_sweep_x = self.LEFT_OFFSET
         self.sweep_range_width = 0
@@ -31,11 +31,8 @@ class Radar(Depth, IMU):
     def setup(self):
         super().setup() # Init IMU, Camera, Depth
         print("Initializing Radar...")
-        if self.width == 0 or self.height == 0:
-            print("Radar setup failed: Width/Height 0")
-            return
 
-        self.radar_img = np.zeros((self.height, self.width, 3), dtype=np.uint8)
+        self.radar = np.zeros((self.height, self.width, 3), dtype=np.uint8)
         self.prev_distances = np.zeros(self.width)
         self.sweep_range_width = self.width - self.LEFT_OFFSET - 1 
 
@@ -50,7 +47,7 @@ class Radar(Depth, IMU):
         return x, y
 
     def loop(self):
-        super().loop() # Get IMU, Frame, Disparity
+        if super().loop(False): return True
 
         curr_time = time.time()
         dt = curr_time - self.last_radar_time
@@ -62,7 +59,7 @@ class Radar(Depth, IMU):
         disparity_clean = np.where(self.disparity > 0, self.disparity, 0)
         disparity_clean[:, :self.LEFT_OFFSET] = 0 
         
-        self.radar_img = cv2.addWeighted(self.radar_img, self.RADAR_FADE, np.zeros_like(self.radar_img), 0.0, 0)
+        self.radar = cv2.addWeighted(self.radar, self.RADAR_FADE, np.zeros_like(self.radar), 0.0, 0)
         radar_cx, radar_cy = self.width // 2, self.height // 2
         canvas_radius = min(self.width, self.height) // 2 - 10
         
@@ -92,7 +89,7 @@ class Radar(Depth, IMU):
                             radar_cx, radar_cy, dist_cm, col_angle_local, self.yaw, 
                             self.MAX_RADAR_DIST_CM, canvas_radius
                         )
-                        cv2.circle(self.radar_img, (rx_m, ry_m), 4, (0, 255, 0), -1)
+                        cv2.circle(self.radar, (rx_m, ry_m), 4, (0, 255, 0), -1)
                         
                         if dist_cm < closest_motion_dist:
                             closest_motion_dist = dist_cm
@@ -144,7 +141,7 @@ class Radar(Depth, IMU):
                     radar_cx, radar_cy, dist_cm, col_angle_local, self.yaw, 
                     self.MAX_RADAR_DIST_CM, canvas_radius
                 )
-                cv2.circle(self.radar_img, (rx, ry), 2, color, -1)
+                cv2.circle(self.radar, (rx, ry), 2, color, -1)
                 
         self.last_sweep_x = curr_sweep_x
         
@@ -158,7 +155,7 @@ class Radar(Depth, IMU):
         self.valid_sweep = valid_sweep
 
         # --- BUILD DISPLAY ---
-        radar_display = self.radar_img.copy()
+        radar_display = self.radar.copy()
         
         # Radar Rings
         for d in range(self.RING_UNIT, self.MAX_RADAR_DIST_CM + 1, self.RING_UNIT):
@@ -212,31 +209,9 @@ class Radar(Depth, IMU):
         cv2.putText(radar_display, f"POS X: {self.pos_x:.1f} Y: {self.pos_y:.1f}", (10, self.height - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
 
         self.radar_view = radar_display
-
+        self.gui = np.vstack((self.gui, np.hstack((self.depth, radar_display))))
+        
+        
 if __name__ == "__main__":
-    class RadarView(Radar):
-        def loop(self):
-            super().loop()
-            if self.radar_view is not None:
-                # Visualization (Depth + Radar)
-                # Need frames from Camera/Depth
-                rect_l, rect_r = self.rect_frames # From Depth.loop
-                vis_l = self.draw_overlays(rect_l.copy(), mode='lines')
-                vis_r = self.draw_overlays(rect_r.copy(), mode='lines')
-                
-                # Add sweep to depth view
-                depth_disp = self.depth_view.copy()
-                if self.sw_x >= self.LEFT_OFFSET:
-                    cv2.line(depth_disp, (self.sw_x, 0), (self.sw_x, self.height), (255, 255, 255), 2)
-                
-                top = np.hstack((vis_l, vis_r))
-                # Resize bottom to match top?
-                # bot = np.hstack((depth_disp, self.radar_view))
-                # top is 2*width. bot is 2*width.
-                bot = np.hstack((depth_disp, self.radar_view))
-                final = np.vstack((top, bot))
-                
-                cv2.imshow("Radar Class Test", final)
-    
-    app = RadarView()
+    app = Radar()
     app.run()

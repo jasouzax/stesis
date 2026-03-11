@@ -1,11 +1,3 @@
-@keyframes moveGrid {
-  from {
-    background-position: 0 0;
-  }
-  to {
-    background-position: 25px 25px;
-  }
-}
 @font-face {
   font-family: "font_fade";
   src: url("SuperchargeStraightHalftone-YzY7q.otf") format("opentype");
@@ -13,97 +5,237 @@
   font-style: normal;
 }
 @font-face {
-  font-family: "font_regu";
+  font-family: "font_text";
   src: url("Ethnocentric-Regular.otf") format("opentype");
   font-weight: normal;
   font-style: normal;
 }
-@font-face {
-  font-family: "font_text";
-  src: url("SuperchargeStraightExpanded-BWRxB.otf") format("opentype");
-  font-weight: normal;
-  font-style: normal;
+html, body {
+  height: 100%;
 }
+
 body {
   background-color: #0D1114;
+  margin: 0;
+  display: grid;
+  grid-template-rows: 25px 25px 25px auto 25px 25px;
+  grid-template-columns: 300px auto 25px;
+  background-image: radial-gradient(circle at center, transparent, #0D1114 80%), linear-gradient(#15191C 1px, transparent 1px), linear-gradient(90deg, #15191C 1px, transparent 1px);
+  background-size: 100% 100%, 25px 25px, 25px 25px;
+  filter: url(#glitch_def);
+  overflow: hidden;
+  transition: grid-template 0.5s;
 }
 
-canvas {
-  position: fixed;
-  z-index: 0;
+#scifi_svg {
+  grid-area: 1/1/span 6/span 3;
 }
-
-#grid {
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-image: linear-gradient(#15191C 1px, transparent 1px), linear-gradient(90deg, #15191C 1px, transparent 1px);
-  background-size: 25px 25px;
-  animation: moveGrid 2s linear infinite;
-  background-color: #0D1114;
-  z-index: 1;
-  opacity: 0.85;
-  backdrop-filter: blur(2px);
-}
-
-#ui {
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 2;
-}
-#ui svg {
-  overflow: visible;
-}
-#ui svg path, #ui svg line, #ui svg circle {
-  fill: none;
+#scifi_svg path {
+  fill: #AFD3CD;
   stroke: #AFD3CD;
   stroke-width: 2;
-  position: absolute;
 }
-#ui svg path.fill, #ui svg line.fill, #ui svg circle.fill {
+
+#head {
+  grid-area: 1/1;
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+#logo_svg {
+  overflow: visible;
+  zoom: 0.6;
+  margin: auto 0 auto auto;
+  transform: translate(0, 5px);
+  transition: zoom 0.5s, transform 0.5s;
+  flex-grow: 0;
+}
+#logo_svg path {
   fill: #AFD3CD;
-}
-#ui .logo {
-  fill: #AFD3CD;
-}
-#ui .name {
-  fill: #AFD3CD;
-  font: 40px font_fade;
-}
-#ui .fulltitle {
-  fill: #AFD3CD;
-  font: 13px font_regu;
-  opacity: 0.75;
-}
-#ui .head path, #ui .head rect {
   stroke-width: 0;
-  fill: url(#def_head);
+  mask-image: url(#pupil_def);
 }
-#ui .sidebar .number {
-  fill: #0D1114;
-  font: 13px font_regu;
+
+#name {
+  font: 42.5px font_fade;
+  color: #AFD3CD;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  margin: auto auto auto 12.5px;
+  display: flex;
+  flex-direction: column;
+  transform: translate(0, 6.25px);
+  transition: max-width 0.5s, margin 0.5s, transform 0.5s;
 }
-#ui .sidebar .title {
-  fill: #AFD3CD;
-  font: 13px font_text;
+#name span {
+  font: 30% font_text;
+  max-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: max-width 0.5s;
 }
-#ui .sidebar .title.dark {
-  fill: #0D1114;
+
+#title {
+  grid-area: 1/2/span 1/span 2;
+  font: 12.5px font_text;
+  color: #AFD3CD;
+  padding: 0 50px;
+  text-align: center;
+  margin: auto 0;
 }
-#ui .sidebar .icon path {
-  fill: #0D1114;
+
+#about {
+  grid-area: 2/1/span 1/span 3;
+  position: relative;
+  margin: 37.5vh 50vw;
+  color: #AFD3CD;
+  white-space: nowrap;
+  background: rgba(175, 211, 205, 0.1);
+  backdrop-filter: blur(10px);
+  display: flex;
+  transition: margin 1s 0.375s;
+  overflow: hidden;
 }
-#ui .content .title {
-  fill: #AFD3CD;
-  font: 30px font_fade;
+#about::before, #about::after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 0;
+  border: 0 solid #AFD3CD;
 }
-#ui .ani_load {
-  display: none;
+#about::before {
+  top: 0;
+  left: 0;
+  border-width: 2px 0 0 2px;
+}
+#about::after {
+  bottom: 0;
+  right: 0;
+  border-width: 0 2px 2px 0;
+}
+#about > div {
+  opacity: 0;
+  transition: opacity 0.5s 0.75s;
+}
+#about .school {
+  width: 50%;
+  padding: 25px;
+}
+#about .school img {
+  width: 100px;
+  height: 100px;
+  float: left;
+}
+#about .school h3 {
+  height: 100px;
+  margin: 0 0 25px 125px;
+  font: 25px font_text;
+  line-height: 100px;
+}
+#about .school h2 {
+  font: 25px font_text;
+  margin: 50px auto;
+}
+#about .members {
+  width: 50%;
+}
+#about .members h2 {
+  font: 37.5px font_text;
+  margin: 50px auto;
+}
+#about .members h3 {
+  font: 25px font_text;
+  line-height: 50px;
+}
+
+#slide_title {
+  display: grid;
+  grid-template: auto/auto;
+  grid-area: 2/2/span 2;
+}
+#slide_title h2, #slide_title svg {
+  grid-area: 1/1;
+}
+#slide_title svg {
+  overflow: visible;
+}
+#slide_title #title_back_svg path {
+  fill: url(#head_def);
+  stroke-width: 0;
+}
+#slide_title #title_down_svg path {
+  stroke: #AFD3CD;
+  stroke-width: 2;
+}
+#slide_title h2 {
+  font: 25px font_fade;
+  color: #AFD3CD;
+  padding: 0 50px;
+  white-space: nowrap;
+  margin: 0;
+  line-height: 62.5px;
+  max-width: 100%;
+  overflow: hidden;
+  transition: max-width 0.5s;
+}
+
+body.title {
+  grid-template-rows: 100% 0 0 0 0 0;
+  grid-template-columns: 100% 0 0;
+}
+body.title #logo_svg {
+  zoom: 1.5;
+  transform: translate(0, 0);
+}
+body.title #name {
+  font-size: 50px;
+}
+body.title #title {
+  font-size: 25px;
+  transform: translate(0, 0);
+}
+body.title #slide_title h2 {
+  max-width: 0;
+}
+body.title.n0 #name, body.title:not(.n1):not(.n2) #name {
+  max-width: 0;
+  margin-left: 0;
+}
+body.title.n0 #logo_svg {
+  --load: 1;
+}
+body.title.n1 #logo_svg {
+  left: calc(50% - 100px);
+  --animate: 0;
+}
+body.title.n1 #name {
+  margin-left: 25px;
+}
+body.title.n1 #name span {
+  max-width: 100%;
+}
+body.title.n2 {
+  grid-template-rows: 25% 75% 0 0 0 0;
+  grid-template-columns: 50% 25% 25%;
+}
+body.title.n2 #about {
+  margin: 50px;
+}
+body.title.n2 #about::before, body.title.n2 #about::after {
+  width: 50px;
+  height: 50px;
+}
+body.title.n2 #about > div {
+  opacity: 1;
+}
+body.title.n2 #name span {
+  max-width: 100%;
+}
+
+body:not(.title) #scifi_svg, body:not(.title) #title_down_svg {
+  --load: 1;
 }
 
 /*# sourceMappingURL=style.css.map */
