@@ -1,255 +1,411 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=0.5">
-        <title>Stesis Thesis</title>
-        <link rel="stylesheet" href="style.css" />
-        <script src="xpath.js"></script>
-        <svg style="display:none" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-                <!-- Glitch Effect -->
-                <filter id="glitch_def" primitiveUnits="objectBoundingBox" x="-10%" y="0%" width="120%" height="100%">
-                    <feColorMatrix in="SourceGraphic" result="red" type="matrix" values="1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0"/>
-                    <feColorMatrix in="SourceGraphic" result="green" type="matrix" values="0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0"/>
-                    <feColorMatrix in="SourceGraphic" result="blue" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0"/>
-                    <feOffset in="red" result="red-shifted" dx="-0.0012" dy="0">
-                        <animate attributeName="dx" keyTimes="0;0.1094;0.1828;0.2293;0.2980;0.4812;0.4838;1" values="0.0009;0.0009;0.0011;0.0002;0.0010;0.0002;0.0009;0.0008" begin="0" dur="5s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
-                        <animate attributeName="dy" keyTimes="0;0.1094;0.1828;0.2293;0.2980;0.4812;0.4838;1" values="0.0009;0.0009;0.0011;0.0002;0.0010;0.0002;0.0009;0.0008" begin="0" dur="5s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
-                    </feOffset>
-                    <feOffset in="blue" result="blue-shifted" dx="0.0012" dy="0">
-                        <animate attributeName="dx" keyTimes="0;0.0976;0.2207;0.3845;0.8012;0.8976;0.9693;1" values="0.0009;0.0003;0.0004;0.0012;0.0003;0.0004;0.0003;0.0008" begin="0" dur="5.5s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
-                        <animate attributeName="dy" keyTimes="0;0.0976;0.2207;0.3845;0.8012;0.8976;0.9693;1" values="0.0009;0.0003;0.0004;0.0012;0.0003;0.0004;0.0003;0.0008" begin="0" dur="5.5s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
-                    </feOffset>
-                    <feBlend mode="screen" in="red-shifted" in2="green" result="red-green"/>
-                    <feBlend mode="screen" in="red-green" in2="blue-shifted" result="blended"/>
-                    <feOffset in="blended" dx="0" dy="0" y="0%" height="18%" result="slice_0">
-                        <animate attributeName="dx" keyTimes="0;0.2570;0.3172;0.4820;0.5934;0.8557;0.9105;1" values="0.0006;0.0009;0.0007;0.0012;0.0009;0.0004;0.0009;0.0003" begin="0s" dur="6.7034s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
-                        <animate attributeName="dy" keyTimes="0;0.2570;0.3172;0.4820;0.5934;0.8557;0.9105;1" values="0.0006;0.0009;0.0007;0.0012;0.0009;0.0004;0.0009;0.0003" begin="0s" dur="6.7034s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
-                    </feOffset>                
-                    <feOffset in="blended" dx="0" dy="0" y="18%" height="14%" result="slice_1">
-                        <animate attributeName="dx" keyTimes="0;0.4310;0.5190;0.6478;0.6489;0.7844;0.7930;1" values="0.0011;0.0005;0.0006;0.0005;0.0006;0.0008;0.0008;0.0009" begin="0s" dur="6.2038s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
-                        <animate attributeName="dy" keyTimes="0;0.4310;0.5190;0.6478;0.6489;0.7844;0.7930;1" values="0.0011;0.0005;0.0006;0.0005;0.0006;0.0008;0.0008;0.0009" begin="0s" dur="6.2038s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
-                    </feOffset>
-                    <feOffset in="blended" dx="0" dy="0" y="32%" height="16%" result="slice_2">
-                        <animate attributeName="dx" keyTimes="0;0.1857;0.2727;0.3804;0.6001;0.7463;0.7986;1" values="0.0002;0.0007;0.0009;0.0005;0.0005;0.0012;0.0010;0.0010" begin="0s" dur="7.3238s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
-                        <animate attributeName="dy" keyTimes="0;0.1857;0.2727;0.3804;0.6001;0.7463;0.7986;1" values="0.0002;0.0007;0.0009;0.0005;0.0005;0.0012;0.0010;0.0010" begin="0s" dur="7.3238s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
-                    </feOffset>
-                    <feOffset in="blended" dx="0" dy="0" y="48%" height="8%" result="slice_3">
-                        <animate attributeName="dx" keyTimes="0;0.2305;0.4179;0.4274;0.6528;0.6575;0.9102;1" values="0.0006;0.0009;0.0003;0.0005;0.0003;0.0009;0.0011;0.0010" begin="0s" dur="6.8315s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
-                        <animate attributeName="dy" keyTimes="0;0.2305;0.4179;0.4274;0.6528;0.6575;0.9102;1" values="0.0006;0.0009;0.0003;0.0005;0.0003;0.0009;0.0011;0.0010" begin="0s" dur="6.8315s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
-                    </feOffset>
-                    <feOffset in="blended" dx="0" dy="0" y="56%" height="11%" result="slice_4">
-                        <animate attributeName="dx" keyTimes="0;0.1400;0.1469;0.2086;0.4002;0.7897;0.8509;1" values="0.0002;0.0006;0.0007;0.0003;0.0006;0.0008;0.0004;0.0003" begin="0s" dur="5.7577s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
-                        <animate attributeName="dy" keyTimes="0;0.1400;0.1469;0.2086;0.4002;0.7897;0.8509;1" values="0.0002;0.0006;0.0007;0.0003;0.0006;0.0008;0.0004;0.0003" begin="0s" dur="5.7577s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
-                    </feOffset>
-                    <feOffset in="blended" dx="0" dy="0" y="67%" height="14%" result="slice_5">
-                        <animate attributeName="dx" keyTimes="0;0.3324;0.3807;0.8141;0.8554;0.8816;0.9973;1" values="0.0007;0.0005;0.0009;0.0003;0.0003;0.0008;0.0008;0.0011" begin="0s" dur="6.7145s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
-                        <animate attributeName="dy" keyTimes="0;0.3324;0.3807;0.8141;0.8554;0.8816;0.9973;1" values="0.0007;0.0005;0.0009;0.0003;0.0003;0.0008;0.0008;0.0011" begin="0s" dur="6.7145s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
-                    </feOffset>
-                    <feOffset in="blended" dx="0" dy="0" y="81%" height="9%" result="slice_6">
-                        <animate attributeName="dx" keyTimes="0;0.1001;0.2464;0.4813;0.7067;0.7456;0.8933;1" values="0.0002;0.0011;0.0007;0.0005;0.0002;0.0003;0.0006;0.0008" begin="0s" dur="6.9425s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
-                        <animate attributeName="dy" keyTimes="0;0.1001;0.2464;0.4813;0.7067;0.7456;0.8933;1" values="0.0002;0.0011;0.0007;0.0005;0.0002;0.0003;0.0006;0.0008" begin="0s" dur="6.9425s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
-                    </feOffset>
-                    <feOffset in="blended" dx="0" dy="0" y="90%" height="10%" result="slice_7">
-                        <animate attributeName="dx" keyTimes="0;0.2581;0.3914;0.5443;0.7458;0.9339;0.9901;1" values="0.0007;0.0003;0.0003;0.0005;0.0005;0.0011;0.0002;0.0009" begin="0s" dur="4.7741s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
-                        <animate attributeName="dy" keyTimes="0;0.2581;0.3914;0.5443;0.7458;0.9339;0.9901;1" values="0.0007;0.0003;0.0003;0.0005;0.0005;0.0011;0.0002;0.0009" begin="0s" dur="4.7741s" calcMode="discrete" repeatCount="indefinite" fill="freeze"/>
-                    </feOffset>
-                    <feMerge>
-                        <feMergeNode in="slice_0"/><feMergeNode in="slice_1"/><feMergeNode in="slice_2"/><feMergeNode in="slice_3"/><feMergeNode in="slice_4"/><feMergeNode in="slice_5"/><feMergeNode in="slice_6"/><feMergeNode in="slice_7"/>
-                    </feMerge>
-                </filter>
-                <!-- Logo Pupil -->
-                <mask id="pupil_def">
-                    <rect x="-50%" y="-50%" width="100%" height="100%" fill="#fff" />
-                    <path fill-rule="evenodd" fill="#000">
-                        <animate attributeName="d" dur="1s" repeatCount="1" keyTimes="0;0.35;1" fill="freeze" values="
-                            M 0 4 A 0 0 90 0 0 0 4 A 0 0 90 0 0 0 4 m 0 0 a 0 0 90 0 0 0 0 A 0 0 90 0 0 0 4 Z;
-                            M 0 4 A 0 0 90 0 0 0 4 A 0 0 90 0 0 0 4 m 0 0 a 0 0 90 0 0 0 0 A 0 0 90 0 0 0 4 Z;
-                            M-8 4A8 8 0 008 4 8 8 0 00-8 4m3-3a1 1 0 004 0A1 1 0 00-5 1Z
-                        " />
-                    </path>
-                </mask>
-                <!-- Head Background -->
-                <linearGradient id="head_def" gradientTransform="rotate(90)">
-                    <stop offset="0%" stop-color="#AFD3CD00" />
-                    <stop offset="100%" stop-color="#AFD3CD22" />
-                </linearGradient>
-            </defs>
-        </svg>
-    </head>
-    <body class="title">
-        <!-- Scifi Interface -->
-        <script type="text/xpath" id="scifi">
-            (Elliminate offset bug)
-            M 100% 100% L 100% 100%
-            (Head)
-            M-5 50L[297 50[322 25[O100% 0
-                -45 25[-20 50[-20 75 -25 80[<]-25 80]-25 55]-53 25
-            O0 0]328 25]300 55] -5 55Z
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stesis | AIoT Device Manager</title>
+    <script src="https://openlayers.org/api/2.13.1/OpenLayers.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --app-bg: #fafafa;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border-color: #e5e7eb;
+            --danger: #ef4444;
+            --success: #10b981;
+            --system-app-bg: #f8fafc;
+        }
 
-            (Right Side)
-            >o 0 100%
-                L-23 -150[-48 -125[<]-48 -125]-23 -150
-            o 0 -100%
+        /* Dark Mode Variables */
+        body.dark-mode {
+            --bg-color: #111827;
+            --card-bg: #1f2937;
+            --app-bg: #374151;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+            --border-color: #4b5563;
+            --system-app-bg: #1e293b;
+        }
 
-            (Status)
-            > -56 -125 [
-                [   A 45 45 0 0 0 -111 -126
-                    A 45 45 0 0 1 -56 -125 []]
-                A 45 45 0 0 1 -56 -54
-                [   A 45 45 0 0 1 -111 -54
-                    [L -119 -54 [<]
-                        [   A 50 50 0 0 1 -119 -126
-                            L -111 -126
-                            A 45 45 0 0 0 -111 -54 []]
-                        L -111 -54 []]
-                    A 45 45 0 0 0 -56 -54
-                ]
-                L -49 -54
-                A 50 50 0 0 0 -48 -125 []]
-            L
+        * {
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            height: 100vh;
+            overflow-x: hidden;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* --- Login Screen --- */
+        #login {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(17, 24, 39, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .login-card {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .login-card h1 {
+            margin-top: 0;
+            text-align: center;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .input-group { margin-bottom: 1.5rem; }
+        .input-group label { display: block; margin-bottom: 0.5rem; font-size: 0.875rem; color: var(--text-muted); }
+        .input-group input { width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; font-size: 1rem; background: var(--card-bg); color: var(--text-main); }
+
+        .btn-primary {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-primary:hover { background-color: var(--primary-hover); }
+
+        /* --- Manager Dashboard --- */
+        #manager {
+            display: none;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        header {
+            background: var(--card-bg);
+            padding: 1rem 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        header h1 { margin: 0; font-size: 1.25rem; color: var(--primary); }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .device-status { display: flex; gap: 1rem; font-size: 0.875rem; }
+        .status-indicator { display: flex; align-items: center; gap: 0.25rem; }
+        .dot { height: 10px; width: 10px; background-color: var(--success); border-radius: 50%; display: inline-block; }
+
+        .theme-toggle {
+            background: none; border: 1px solid var(--border-color); color: var(--text-main);
+            padding: 0.4rem 0.8rem; border-radius: 20px; cursor: pointer; font-size: 0.875rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        @media (min-width: 900px) {
+            .dashboard-grid { grid-template-columns: 450px 1fr; }
+        }
+
+        /* --- Applications List --- */
+        .apps-container {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .apps-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .apps-header-row h2 { margin: 0; font-size: 1.125rem; }
+
+        .btn-add {
+            background-color: var(--success);
+            color: white;
+            border: none;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .system-toggle-container {
+            display: flex;
+            align-items: center;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .app-card {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            position: relative;
+            background: var(--app-bg);
+            transition: border-color 0.2s;
+        }
+
+        .app-card.system-app {
+            display: none; /* Hidden by default */
+            background: var(--system-app-bg);
+            border-left: 4px solid var(--text-muted);
+        }
+
+        .app-card:hover { border-color: var(--primary); }
+
+        .app-card img {
+            width: 48px; height: 48px; border-radius: 8px; object-fit: cover; margin-right: 1rem; background: #fff;
+        }
+        
+        .system-icon {
+            width: 48px; height: 48px; border-radius: 8px; margin-right: 1rem; 
+            display: flex; justify-content: center; align-items: center;
+            background: var(--border-color); font-size: 1.5rem;
+        }
+
+        .app-info { flex: 1; }
+        .app-info h3 { margin: 0 0 0.25rem 0; font-size: 1rem; }
+        .app-info p { margin: 0; font-size: 0.75rem; color: var(--text-muted); line-height: 1.2; }
+        .app-author { font-size: 0.7rem; color: var(--primary); font-weight: 600; margin-bottom: 0.25rem; display: block; }
+        .system-badge { background: var(--text-muted); color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; margin-left: 0.5rem; }
+
+        .app-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Toggle Switch */
+        .switch { position: relative; display: inline-block; width: 36px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--success); }
+        input:checked + .slider:before { transform: translateX(16px); }
+
+        /* Action Buttons */
+        .btn-icon {
+            background: none; border: none; cursor: pointer; font-size: 1.2rem;
+            color: var(--text-muted); transition: color 0.2s; padding: 0 0.2rem;
+        }
+        .btn-icon:hover { color: var(--primary); }
+        .btn-icon.delete:hover { color: var(--danger); }
+
+        /* --- Map Container --- */
+        .map-container {
+            background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            padding: 1.5rem; display: flex; flex-direction: column; min-height: 400px;
+        }
+        .map-container h2 { margin-top: 0; font-size: 1.125rem; margin-bottom: 1rem; }
+        #map { flex: 1; border-radius: 8px; border: 1px solid var(--border-color); background: #eaeaea; }
+    </style>
+</head>
+<body>
+
+    <div id="login">
+        <div class="login-card">
+            <h1>Stesis Gateway</h1>
+            <div class="input-group">
+                <label for="dvid">Device ID</label>
+                <input type="text" id="dvid" placeholder="e.g. STESIS-RPi4-001" />
+            </div>
+            <div class="input-group">
+                <label for="pass">Authentication Key</label>
+                <input type="password" id="pass" placeholder="••••••••" />
+            </div>
+            <button class="btn-primary" onclick="handleLogin()">Access Device</button>
+        </div>
+    </div>
+
+    <div id="manager">
+        <header>
+            <h1>Stesis Manager</h1>
+            <div class="header-controls">
+                <div class="device-status">
+                    <div class="status-indicator"><span class="dot"></span> Online</div>
+                    <div class="status-indicator">🔋 85%</div>
+                </div>
+                <button class="theme-toggle" onclick="toggleTheme()">🌗 Toggle Dark Mode</button>
+            </div>
+        </header>
+
+        <div class="dashboard-grid">
+            <div class="apps-container">
+                <div class="apps-header-row">
+                    <h2>Installed Modules</h2>
+                    <button class="btn-add" onclick="alert('Open file dialog to upload a .zip or .js module package')">+ Upload App</button>
+                </div>
+
+                <div class="system-toggle-container">
+                    <input type="checkbox" id="sysToggle" onchange="toggleSystemApps(this)">
+                    <label for="sysToggle" style="margin-left: 0.5rem; cursor: pointer;">Show System Dependencies</label>
+                </div>
+
+                <div class="app-card">
+                    <img src="https://img.freepik.com/premium-vector/technology-radar-eye-background_34679-11.jpg" alt="Stereo Sonification Icon" />
+                    <div class="app-info">
+                        <h3>audio.py <span class="app-author">Main Application</span></h3>
+                        <p>Visual Sensory Substitution through dual OV5640 depth maps to binaural audio.</p>
+                    </div>
+                    <div class="app-controls">
+                        <button class="btn-icon" title="Configure Application">⚙️</button>
+                        <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+                        <button class="btn-icon delete" title="Remove">×</button>
+                    </div>
+                </div>
+
+                <div class="app-card">
+                    <img src="https://www.shutterstock.com/image-vector/scanning-human-palm-interface-hud-260nw-348765323.jpg" alt="Hand Gesture Icon" />
+                    <div class="app-info">
+                        <h3>hand.py <span class="app-author">Main Application</span></h3>
+                        <p>Access external AIoT applications via MediaPipe hand tracking.</p>
+                    </div>
+                    <div class="app-controls">
+                        <button class="btn-icon" title="Configure Application">⚙️</button>
+                        <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+                        <button class="btn-icon delete" title="Remove">×</button>
+                    </div>
+                </div>
+
+                <div class="app-card system-app">
+                    <div class="system-icon">📷</div>
+                    <div class="app-info">
+                        <h3>camera.py <span class="system-badge">Dependency</span></h3>
+                        <p>Connects to the stereo cameras to read image frames.</p>
+                    </div>
+                    <div class="app-controls">
+                        <button class="btn-icon" title="Configure Camera Settings">⚙️</button>
+                        <label class="switch"><input type="checkbox" checked disabled><span class="slider"></span></label>
+                    </div>
+                </div>
+
+                <div class="app-card system-app">
+                    <div class="system-icon">🧭</div>
+                    <div class="app-info">
+                        <h3>imu.py <span class="system-badge">Dependency</span></h3>
+                        <p>Reads from the MPU6050 via I2C and processes orientation.</p>
+                    </div>
+                    <div class="app-controls">
+                        <button class="btn-icon" title="Configure IMU Calibration">⚙️</button>
+                        <label class="switch"><input type="checkbox" checked disabled><span class="slider"></span></label>
+                    </div>
+                </div>
+
+                <div class="app-card system-app">
+                    <div class="system-icon">👁️</div>
+                    <div class="app-info">
+                        <h3>depth.py <span class="system-badge">Dependency</span></h3>
+                        <p>Generates depth map using the stereo baseline JSON.</p>
+                    </div>
+                    <div class="app-controls">
+                        <button class="btn-icon" title="Configure Depth Mapping">⚙️</button>
+                        <label class="switch"><input type="checkbox" checked disabled><span class="slider"></span></label>
+                    </div>
+                </div>
+
+                <div class="app-card system-app">
+                    <div class="system-icon">📡</div>
+                    <div class="app-info">
+                        <h3>radar.py <span class="system-badge">Dependency</span></h3>
+                        <p>Maps the generated depth map data to a radar projection.</p>
+                    </div>
+                    <div class="app-controls">
+                        <button class="btn-icon" title="Configure Radar Scaling">⚙️</button>
+                        <label class="switch"><input type="checkbox" checked disabled><span class="slider"></span></label>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="map-container">
+                <h2>Caregiver Live Tracking</h2>
+                <div id="map"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function handleLogin() {
+            document.getElementById('login').style.display = 'none';
+            document.getElementById('manager').style.display = 'flex';
+            initMap();
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+        }
+
+        function toggleSystemApps(checkbox) {
+            const sysApps = document.querySelectorAll('.system-app');
+            sysApps.forEach(app => {
+                app.style.display = checkbox.checked ? 'flex' : 'none';
+            });
+        }
+
+        function initMap() {
+            if (document.getElementById('map').innerHTML !== "") return;
+            const map = new OpenLayers.Map("map");
             
-            (Bottom)
-            > -148 -25 [ O 0 100% 322 -25 [ 297 -50 [ 247 -50 [ 50 -50 [
-            A 5 5 0 0 0 40 -50 A 5 5 0 0 0 50 -50 A 5 5 0 0 1 40 -50 A 5 5 0 0 1 50 -50L
-            ]
-            50 -50 ] 247 -50 250 -55 ] 300 -55 ] 328 -25 O 100% 100%] -148 -25 -119 -54
-        </script>
-        <div id="head">
-            <!-- Logo -->
-            <script type="text/xpath" id="logo">
-                d 0.25
-                D 0.5
-                M 0 0[
-                    ( Hat )
-                    M -22 2 
-                    L -33 -23
-                    C -33 -25 -20 -35 0 -35
-                    S 33 -25 33 -23
-                    L 22 2
-                    C 22,21,22 2,2,-5 21,20,21 3,2,-15 19.79,18,20 3.67,2,-22
-                    15.89,17,20 6.05,2,-20 11.87,9,10 7.44,2,-7 6.99,6,7 8.2,2,-7
-                    2.51,1,3 8.93,2,-8 -2.51,-2,-3 8.93,2,-8 -6.99,-7,-8 8.2,2,-7
-                    -11.87,-9,-10 7.44,2,-7 -15.89,-17,-20 6.05,2,-20 -19.79,-18,-20 3.67,2,-22
-                    -21,-20,-21 3,2,-15 -22,-21,-22 2,2,-5 -22 2
-                    Z
-
-                    ( Wing )
-                    M -26 0 
-                    L -26,-26,-24 0,0,4
-                    C -15 14,14,20 15 14,14,20 26,26,24 0,0,4
-                    L 26 0 
-                    L 38,33.64,38 1,-1.67,-4
-                    C 39.02,39.31,40 1.18,-1.18,-4 39.38,44.48,48 2.26,2.05,2 38.29,42.72,48 3.99,3.33,3
-                    37.04,38.27,40 6.16,5.09,3 33.39,34.25,37 10.77,11.85,10 30.86,33.52,37 12.99,15.5,17
-                    27.75,27.62,30 15.78,17.64,17 24.65,23.66,25 18.03,19.83,20 20.96,20.55,23 19.93,23.6,26
-                    17,13.19,15 21.88,23.54,23 13.29,10.51,11 23.27,25.61,28 8,8.8,10 24.22,27.13,30
-                    2.77,1.92,3 25.2,25.31,27 -2.77,-1.92,-3 25.2,25.31,27 -8,-8.8,-10 24.22,27.13,30
-                    -13.29,-10.51,-11 23.27,25.61,28 -17,-13.19,-15 21.88,23.54,23 -20.96,-20.55,-23 19.93,23.6,26
-                    -24.65,-23.66,-25 18.03,19.83,20 -27.75,-27.62,-30 15.78,17.64,17 -30.86,-33.52,-37 12.99,15.5,17
-                    -33.39,-34.25,-37 10.77,11.85,10 -37.04,-38.27,-40 6.16,5.09,3 -38.29,-42.72,-48 3.99,3.33,3
-                    -39.38,-44.48,-48 2.26,2.05,2 -39.02,-39.31,-40 1.18,-1.18,-4 -38,-33.64,-38 1,-1.67,-4
-                    Z
-
-                    ( Eye )
-                    M -21 4
-                    C -11 4,4,-8 11 4,4,-8 21 4
-                    11 4,4,16 -11 4,4,16 -21 4
-                    Z
-
-                    ( Pupil )
-                    M 0,0,-8 4 
-                    A 0,0,8 0,0,8 90,90,0 0 0 0,0,8 4 
-                    A 0,0,8 0,0,8 90,90,0 0 0 0,0,-8 4 
-                    m 0,0,3 0,0,-3 
-                    a 0,0,1 0,0,1 90,90,0 0 0 0,0,4 0 
-                    A 0,0,1 0,0,1 90,90,0 0 0 0,0,-5 4,4,1 
-                    Z
-                    
-                    (d 1)
-                []]
-            </script>
-            <!-- Name -->
-            <h1 id="name">
-                Stesis
-                <span>STEreo Sonified Interface System</span>
-            </h1>
-        </div>
-        <!-- Title -->
-        <h2 id="title" style="display: none">World Navigation Hat - Development of a Wearable Navigation Aid using AIoT for the Visually Impaired</h2>
-        <!-- About -->
-        <div id="about">
-            <div class="school">
-                <img src="usa.png" />
-                <h3>University of San Agustin</h3>
-                <img src="cot.png" />
-                <h3>College of Technology</h3>
-                <img src="cpe.png" />
-                <h3>Computer Engineering</h3>
-                <h2>CpE 423 - Practice and Design II</h2>
-            </div>
-            <div class="members">
-                <h2>Members</h2>
-                <h3>D'Souza, Jason</h3>
-                <h3>Pabito, Ethel Herna</h3>
-                <h3>Wang, Chenlin</h3>
-                <h3>Daywan, Vince Ginno</h3>
-            </div>
-        </div>
-        <!-- Slide Title -->
-        <div id="slide_title">
-            <h2>Background of the Study</h2>
-            <script type="text/xpath" id="title_back">
-                O 0 100% M 0 0 L 35 -40 o 100% 0 -35 -40 -10 -15 -10 0Z
-            </script>
-            <script type="text/xpath" id="title_down">
-                d 0.5
-                O 0 100% M 0 0 [o 100% 0 L -10 0 []]
-            </script>
-        </div>
-        <div id="page">
-            <div data-page="background">
-            </div>
-            <div data-page="problem">
-            </div>
-            <div data-page="solution">
-            </div>
-            <div data-page="hypothesis">
-            </div>
-            <div data-page="related">
-            </div>
-            <div data-page="architecture">
-            </div>
-            <div data-page="demo">
-            </div>
-            <div data-page="performance">
-            </div>
-            <div data-page="experiment">
-            </div>
-            <div data-page="conclusion">
-            </div>
-        </div>
-        <script>
-            var c = 0;
-            onkeyup = () => {
-                c++;
-                if (c == 1) {
-                    document.body.classList.add('title', 'n0');
-                    setTimeout(() => document.getElementById('title').style.display = 'block', 500);
-                } else if (c == 2) {
-                    document.body.classList.replace('n0', 'n1');
-                } else if (c == 3) {
-                    document.body.classList.replace('n1', 'n2');
-                } else if (c == 4) {
-                    document.body.classList.remove('title', 'n2');
-                }
-            };
-            /*onload = () => {
-                setTimeout(()=>document.body.classList.replace('n0', 'n1'), 300);
-                setTimeout(()=>document.body.classList.replace('n1', 'n2'), 1000);
-                setTimeout(()=>document.body.classList.remove('title', 'n2'), 2000);
-            };*/
-        </script>
-    </body>
+            // Adjust map layer for dark mode compatibility conceptually 
+            // (OSM is light by default, but keeping it standard here)
+            map.addLayer(new OpenLayers.Layer.OSM());
+            
+            const lonLat = new OpenLayers.LonLat(0, 0)
+                .transform(
+                    new OpenLayers.Projection("EPSG:4326"),
+                    map.getProjectionObject()
+                );
+            
+            map.setCenter(lonLat, 2);
+            window.addEventListener('resize', () => { map.updateSize(); });
+        }
+    </script>
+</body>
 </html>

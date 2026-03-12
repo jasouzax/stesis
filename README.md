@@ -14,33 +14,27 @@
 
 - **Project Name:** Stesis (Stereo-based Sonification Interface System)
 - **Thesis Title:** World Navigation Hat – Development of a Wearable Navigation Aid using AIoT for the Visually Impaired
+- **Hardware Status:** A single, unified physical prototype is being developed.
+- **Publication Strategy:** The research is deliberately split into two distinct papers to prevent copyright and self-plagiarism conflicts:
+    - **The IEEE Paper (The Pre-Installed App):** Focuses strictly on the physical navigation algorithm. It evaluates the stereo sonification system, selective filtering via head tracking, and the reduction of sensory overload.
+    - **The RPS Paper (The App Manager):** Focuses strictly on the digital/interaction architecture. It evaluates the modular AIoT system, hand-gesture application triggering, server management, and the device's ability to be customized for diverse user needs.
 
-## Scopes
 
-- **IEEE** - Minimizing sensory limitations through **radar-like selective filtering** algorithm, testing includes the efficency of the algorithm to achieve the task.
-- **RPS** - Prioritizes in AIoT aspects by testing the AI and IoT capabilities and the user's ability to access them how it integrates to their digital/physical life.
 
-## Problem
+## The Dual-Scope Framework
 
-Despite advancements in assistive technology, the visually impaired continue to face significant barriers in physical navigation and digital accessibility (SDG 10).
-> Sensory Substitution Devices research has two primary pillars of "Valley of death" like Sensory limitation which includes the neuroplastic adaptation and bandwidth bottleneck like sensory fatigue and overload, and Generalization Problem where SSD fails in different environments because it specializes in specific environmental conditions which real life often is not. These two problems are split between the two papers for IEEE and RPS
-- **IEEE** - Existing Visual Sensory Substitution Devices (VSSDs) often fail due to **sensory overload** as continuously flooding the user with audio data, these devices prevent "subconscious integration" to the brain's ability to process signals intuitively, leading to cognitive fatigue and device abandonment.
-- **RPS** - Existing Visual Sensory Substitution Devices (VSSDs) often fail due to **integration** issues as varied visual imparities have varied needs and wants, so often they are only useful for lab or specific conditions and fail at being adaptable to real-life scenarios. 
+Because this project addresses the "Valley of death" in Sensory Substitution Devices (sensory limitation/fatigue vs. the generalization problem in real-world environments), it is split into two distinct research tracks.
 
-## Solution
+| Dimension | IEEE Scope (Sensory Limitation) | RPS Scope (Generalization & Integration) |
+| --- | --- | --- |
+| **Focus** | Minimizing sensory limitations through a radar-like selective filtering algorithm. | Prioritizing AIoT aspects, testing AI/IoT capabilities, and user integration into digital/physical life. |
+| **Problem** | Visual Sensory Substitution Devices (VSSDs) fail due to sensory overload, continuously flooding users with audio, preventing "subconscious integration," and causing cognitive fatigue. | VSSDs fail due to integration issues; visually impaired individuals have varied needs, making devices useful only in labs rather than adaptable to real-life scenarios. |
+| **Solution** | **Physical Mode (Navigation):** Uses stereo-rectified depth mapping (OpenCV) to convert 3D environments into binaural "radar-like" audio. Local processing ensures <100ms latency. | **Digital Mode (Interaction):** Uses the right camera to detect hand gestures (MediaPipe) to control external AI/IoT applications. |
+| **Hypothesis** | Prioritizing selective filtering via intentional head gestures minimizes sensory overload compared to continuous streaming, increasing navigation efficiency and subconscious integration. | Prioritizing a modular system controllable through hand gestures and an IoT server personalizes the device, supporting widespread adaptability. |
+| **Objectives** | Develop an AIoT hat minimizing overload via selective filtering. Generate local depth maps via OpenCV. Evaluate cognitive load and navigation efficiency against continuous streaming using a within-subject design. | Build a modular system for third-party AI/IoT apps via NodeJS. Create a toggleable cue mode via hand gestures (MediaPipe) and IMU focus. Test IoT server management, app precision/accuracy, and overall device performance. |
 
-**Stesis** is a wearable "smart hat" powered by a **Raspberry Pi 4** (tethered to a pocketed power bank). It utilizes a dual-mode interface to balance information flow:
 
-- **Physical Mode (Navigation):** *(IEEE)* Uses stereo-rectified depth mapping (OpenCV) to convert the 3D environment into binaural "radar-like" audio. This processing is local (non-AI), ensuring low latency (<100ms) for real-time safety.
-- **Digital Mode (Interaction):** *(RPS)* Uses the right camera to detect hand gestures (MediaPipe), enabling control of external applications like for AI and IoT features.
-- **Selective Filtering:** Integrated MPU6050 head-tracking logic allows users to "toggle" data streams or request specific depth scans via head gestures. This mimics natural vision (looking where one wants to see), significantly reducing the constant noise inherent in traditional VSSDs.
-
-## Hypothesis
-
-- **IEEE** - Prioritizing **selective filtering** via intentional head gestures will minimize sensory overload and fatigue compared to continuous audio streaming, thereby increasing navigation efficiency and accelerating the user's ability to subconsciously integrate the device's feedback.
-- **RPS** - Prioritizing **modular system** design controllable through hand gesture and IoT server would help make substitution devies more personalized to the needs of the visually impaired thereby supporting widespread adaptability and implementation of the device. 
-
-## Objectives
+## Objectives (Specific)
 
 - **IEEE** - To develop an AIoT visual sensory substitution hat that minimizes sensory overload by allowing users to selectively filter environmental sonification.
     - Develop a dual-mode prototype powered by a Raspberry Pi 4 that generates local depth maps via OpenCV stereo vision (Physical Mode) and integrates MediaPipe AI hand gesture recognition (Digital Mode).
@@ -124,13 +118,12 @@ The IPO of the system is *(Figure 1)*
 
 ## Theoretical Basis
 
-- The hypothesis of the study is heavily based on a theoretical phenomenon called **Sensorimotor Contingencies** where allowing direct control on the substitution input should shift the cognitive load from conscious decoding to intuitive subconscious spatial awareness.
-- The process of substituting visual to audio means representing 2D data in 1D, so the algorithm utilizes a **radar-like** mapping schema representing the Y-axis as audio and the X-axis as time.
-- Human visual perception in **Scene Gist and Gestalt Organization** perceives spatial geometry (outlines) before details/textures so the algorithm generates depth map to represent the spatial geometry through stereo rectification to allow real time processing when compared to an AI model like MiDaS.
-- To represent the outlines, only the closest proximity of that time slice is represented in audio where the frequency is inversely proportional to the proximity (closer the object the higher the frequency) and to ensure it doesnt effect the sense of volume then the **Equal Loudness Compensation** is applied
-- The volume of the audio output is split between left and right channels through **Head-Related Transfer Function** to create a sense in the 3D space.
-- The rate of the radar scan is proportional to the angle of depression of the device, this allows the rate of output to slowed down if needed for the user to digest the information and to skip or focus on specific areas mimicing **Focus and Spatial Resolution**
-- While the radar creates this entity that goes back and forth based on the rate of radar scan, it overtime losses it total volume to reduce redundant information while prioritizing movement as represented as new audio entities as visual **Selective Attension and Saliency**
+- **Sensorimotor Contingencies:** Allowing direct control over input shifts cognitive load from conscious decoding to intuitive subconscious spatial awareness.
+- **Radar-Like Mapping:** Substitutes 2D visual data into 1D audio by representing the Y-axis as audio and the X-axis as time.
+- **Scene Gist and Gestalt Organization:** Humans perceive geometry outlines before details. Stesis uses depth maps via stereo rectification for real-time spatial geometry processing (faster than AI models like MiDaS).
+- **Equal Loudness Compensation:** The closest proximity in a time slice is represented in audio; frequency is inversely proportional to proximity, and compensation ensures it doesn't affect volume perception.
+- **Head-Related Transfer Function (HRTF):** Volume is split between left/right channels to create 3D space awareness.
+- **Focus, Spatial Resolution & Saliency:** Radar scan rate is proportional to the device's angle of depression. Over time, the radar loses total volume to reduce redundant data, prioritizing new movements as visual selective attention.
 
 ## System Design
 
@@ -209,33 +202,41 @@ Since the equation for depth $Z=\frac{f\cdot b}{d}$ shows that depth is linear i
 
 ## Benchmarking & Testing *(IEEE)*
 
-The study employs a **Within-Subject** design with 20 blindfolded participants comparing **State A** (Continuous Stream) vs. **State B** (Stesis Selective Filtering) on a controlled obstacle course (Our school classrooms and corridors). As for the modular system, the user test if they could successfully call a mockup call through hand gesture.
+The study employs a **Within-Subject** design with 40 blindfolded participants comparing **State A** (Continuous Stream) vs. **State B** (Stesis Selective Filtering) on a controlled obstacle course (Our school classrooms and corridors). As for the modular system, the user test if they could successfully call a mockup call through hand gesture.
 
 **Comparitive/Baseline Methods (State A)**
 Continuous streaming will implement existing visual sensory substitution to audio algorithms to provide a better comparision to the Stesis Selective Filtering algorithms. The algorithm is based on [Louis Commere, and Jean Rouat (2023)](http://arxiv.org/pdf/2304.05462) which uses the beep-repetition rate has it remains the gold standard baseline for non-verbal spatial warning systems.
 
 **System Performance Metrics:**
 
-* **Latency:** Time from capture to audio output (Target: <100ms).
-* **Accuracy:** Reliability of Head (MPU6050) and Hand (MediaPipe) gesture recognition.
+- **Latency:** Time from capture to audio output (Target: <100ms).
+- **Accuracy:** Reliability of Head (MPU6050) and Hand (MediaPipe) gesture recognition.
 
 **User Performance Metrics:**
 
-* **Navigation:** Time to Completion (TTC), Obstacle Hits (OH), and Veering (lateral deviation).
-* **Cognitive Load:** NASA-TLX (Task Load Index) survey to quantify mental fatigue.
-* **Intuitiveness:** Wilcoxon Signed-Rank Test on user feedback.
+- **Navigation:** Time to Completion (TTC), Obstacle Hits (OH), and Veering (lateral deviation).
+- **Cognitive Load:** NASA-TLX (Task Load Index) survey to quantify mental fatigue.
+- **Intuitiveness:** Wilcoxon Signed-Rank Test on user feedback.
 
 **Statistical Analysis:**
 A Paired T-Test will be used for TTC and OH. If the null hypothesis is rejected, indicating that gesture-based filtering significantly improves performance.
 
+## Benchmarking & Testing *(RPS)*
+
+- **Testing Methodology:** Users test the modular system by attempting to successfully trigger a mockup call through a hand gesture.
+- **Application Management:** Evaluating the system's ability to manage applications within the IoT server and its overall effect on the device.
+- **Hardware & Server Performance Metrics:** Measuring the physical device's performance (such as weight and latency) alongside the IoT server's performance (including latency and security).
+- **Interface Accuracy Metrics:** Evaluating the Precision, Recall, and Accuracy of the two pre-installed applications (the toggleable cue interface and the stereo sonification system) as well as the gesture accuracy for both head and hand movements.
+- **User Experience:** Conducting a navigation ease-of-use survey.
+
 ## Implications and Future Work
-Beyond physical navigation, this too might have significant implications for digital environments, including social media interfaces, text recognition, facial recognition, and object identification. Successful API integration via the call gesture also underscores extensibility to a range of applications tailored to specific user needs.
-While optimization of the hardware has not been a priority, the idea can be applied on hardware platforms already in place, like smart glasses with stereo cameras and LiDAR for improved accuracy and speed of depth perception. Future versions may add further refinement with eye-tracking that would provide hands-free control or extend sensory output to tactile to minimize the sensory fatigue indicated in test 6, expanding accessibility for those with restricted motor capability.
-This research focused on validating the controllability hypothesis rather than hardware optimization. The prototype assumes basic motor abilities for head node and gesture input, addresses only visual-to-audio substitution, and represents one component of comprehensive inequality reduction requiring complementary policy and medical interventions.
-Future directions include incorporating LiDAR for improved depth estimation in the stereo vision algorithm, implementing alternative control modalities such as eye-tracking or voice commands, exploring hybrid audio-tactile feedback to reduce fatigue, and conducting longitudinal studies with visually impaired participants to assess real-world usability and impact.
+
+- **Digital Integration:** Potential for managing social media interfaces, text recognition, and API integration via gestures.
+- **Hardware Evolution:** The selective filtering software concept can be adapted to existing smart glasses using LiDAR or eye-tracking.
+- **Future Interventions:** Exploring hybrid audio-tactile feedback to reduce fatigue and conducting longitudinal studies with visually impaired users. This prototype is a foundational validation of the controllability hypothesis.
 
 ## Design Backstory & Rationale
 
-* **The Hardware Pivot:** The prototype utilizes a **Raspberry Pi 4** rather than the smaller Orange Pi Zero 2W. While the Orange Pi offered better portability, it presented critical stability issues (WLAN failures on Debian, I2C kernel conflicts) that hindered development. The RPi 4 provides the architectural stability necessary to validate the *software hypothesis* (selective filtering), which takes precedence over miniaturization in this phase.
-* **Why a Hat?** Distributing hardware weight across the cranium avoids the nose/ear fatigue common with smart glasses. Additionally, the stereo camera spacing on the brim mimics the natural separation of human eyes, aiding the brain in depth perception and sonification.
-* **Nomenclature:** "Stesis" is a triple-entendre: **Ste**reo-based **S**onification **I**nterface **S**ystem, while the suffix "-sis" nods to its dual nature as a Thesis and a Hypothesis.
+- **The Hardware Pivot:** The prototype utilizes a **Raspberry Pi 4** rather than the smaller Orange Pi Zero 2W. While the Orange Pi offered better portability, it presented critical stability issues (WLAN failures on Debian, I2C kernel conflicts) that hindered development. The RPi 4 provides the architectural stability necessary to validate the *software hypothesis* (selective filtering), which takes precedence over miniaturization in this phase.
+- **Why a Hat?** Distributing hardware weight across the cranium avoids the nose/ear fatigue common with smart glasses. Additionally, the stereo camera spacing on the brim mimics the natural separation of human eyes, aiding the brain in depth perception and sonification.
+- **Nomenclature:** "Stesis" is a triple-entendre: **Ste**reo-based **S**onification **I**nterface **S**ystem, while the suffix "-sis" nods to its dual nature as a Thesis and a Hypothesis.
